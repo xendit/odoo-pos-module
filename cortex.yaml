@@ -1,0 +1,25 @@
+openapi: 3.0.1
+info:
+  title: Odoo
+  description: Odoo payment module
+  x-cortex-git:
+    github:
+      repository: xendit/odoo
+  x-cortex-tag: odoo
+  x-cortex-link:
+    - name: OpenAPI spec
+      type: OPENAPI
+      url: docs/openapi.yaml
+  x-cortex-oncall:
+    pagerduty:
+      id: P6F21HS
+      type: SERVICE
+  x-cortex-owners:
+    - type: GROUP
+      name: xendit/store-channels
+    - type: SLACK
+      channel: store-channels-cortex
+  x-cortex-dependency: []
+  x-cortex-service-groups:
+    - node
+    - module
