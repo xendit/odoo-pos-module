@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from odoo import models, fields
 
-class XenditCredentials(models.TransientModel):
-    _inherit = 'res.config.settings'    
-    _name = "xendit.credentials"    
+class Xendit(models.Model):   
+    _name = "xendit.xendit"
     
-    public_key = fields.Char(string='Public Key', required=True)    
+    name = fields.Char('Name')
