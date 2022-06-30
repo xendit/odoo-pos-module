@@ -1,6 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
     <!-- explicit list view definition -->
+    <record id="xendit_configuration_settings" model="ir.ui.view">
+      <field name="name">Xendit configuration</field>
+      <field name="model">xendit.credentials</field>
+      <field name="priority" eval="15"/>
+      <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+      <field name="arch" type="xml">
+        <xpath expr="//div[hasclass('settings')]" position="inside">
+            <div class="app_settings_block" data-string="Xendit POS" string="Xendit POS" data-key="xendit_pos">
+                 <h2>Xendit Credentials</h2>
+                 <div class="row mt16 o_settings_container">
+                     <div class="col-12 col-lg-6 o_setting_box">
+                         <div class="o_setting_left_pane"/>
+                         <div class="o_setting_right_pane">
+                             <span class="o_form_label">Public Key</span>
+                             <div class="text-muted content-group mt16">
+                                 <field name="public_key" class="text-center oe_inline" />
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+        </xpath>
+      </field>
+    </record>
+    <!-- <record id="xendit_configuration_settings_action" model="ir.actions.act_window">
+      <field name="name">Xendit configuration</field>
+      <field name="res_model">xendit.credentials</field>
+      <field name="view_id" ref="xendit_configuration"/>
+      <field name="view_mode">form</field>
+      <field name="target">inline</field>
+    </record>
+    <menuitem id="xendit_configration_settings_menu" name="Xendit Credentials"
+      parent="base.menu_config" action="xendit_configuration_settings_action"/> -->
 <!--
     <record model="ir.ui.view" id="xendit.list">
       <field name="name">xendit list</field>
@@ -12,15 +46,6 @@
           <field name="value2"/>
         </tree>
       </field>
-    </record>
--->
-
-    <!-- actions opening views on models -->
-<!--
-    <record model="ir.actions.act_window" id="xendit.action_window">
-      <field name="name">xendit window</field>
-      <field name="res_model">xendit.xendit</field>
-      <field name="view_mode">tree,form</field>
     </record>
 -->
 
