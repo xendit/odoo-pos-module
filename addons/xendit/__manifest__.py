@@ -28,7 +28,8 @@
         'views/views.xml',
         'views/templates.xml',
         'views/data.xml',
-        'views/xendit.xml'
+        'views/xendit.xml',
+        'views/xendit_settings.xml'
     ],
     'qweb': ['views/xendit_receipt.xml'],
     # only loaded in demonstration mode

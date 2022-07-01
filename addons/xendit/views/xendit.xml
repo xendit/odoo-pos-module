@@ -21,4 +21,11 @@
         action="xendit_action"
         sequence="10"
         />
+    
+    <menuitem id="xendit_sub_configuration_root"
+        name="Configuration"
+        parent="xendit_root"
+        action="xendit_action"
+        sequence="11"
+        />
 </odoo>
