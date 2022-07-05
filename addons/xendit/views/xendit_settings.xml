@@ -14,7 +14,7 @@
                             <div class="o_setting_right_pane">
                                 <span class="o_form_label">Secret Key</span>
                                 <div class="text-muted content-group mt16">
-                                    <field name="secret_key" class="text-center oe_inline" />
+                                    <field name="secret_key" class="text-center oe_inline" password="True" />
                                 </div>
                             </div>
                         </div>
