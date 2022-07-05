@@ -12,22 +12,9 @@
                         <div class="col-12 col-lg-6 o_setting_box">
                             <div class="o_setting_left_pane"/>
                             <div class="o_setting_right_pane">
-                                <span class="o_form_label">Public Key</span>
-                                <div class="text-muted content-group mt16">
-                                    <field name="public_key" class="text-center oe_inline" />
-                                </div>
-                            </div>
-                            <div class="o_setting_left_pane"/>
-                            <div class="o_setting_right_pane">
                                 <span class="o_form_label">Secret Key</span>
                                 <div class="text-muted content-group mt16">
                                     <field name="secret_key" class="text-center oe_inline" />
-                                </div>
-                            </div>
-                            <div class="o_setting_right_pane">
-                                <span class="o_form_label">Test Mode</span>
-                                <div class="text-muted content-group mt16">
-                                    <field name="test_mode" class="text-center oe_inline" />
                                 </div>
                             </div>
                         </div>
