@@ -1,6 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
 <odoo>
   <data>
     <!-- explicit list view definition -->
+    <!-- <record id="xendit_configuration_settings_action" model="ir.actions.act_window">
+      <field name="name">Xendit configuration</field>
+      <field name="res_model">xendit.credentials</field>
+      <field name="view_id" ref="xendit_configuration"/>
+      <field name="view_mode">form</field>
+      <field name="target">inline</field>
+    </record>
+    <menuitem id="xendit_configration_settings_menu" name="Xendit Credentials"
+      parent="base.menu_config" action="xendit_configuration_settings_action"/> -->
 <!--
     <record model="ir.ui.view" id="xendit.list">
       <field name="name">xendit list</field>
@@ -12,15 +22,6 @@
           <field name="value2"/>
         </tree>
       </field>
-    </record>
--->
-
-    <!-- actions opening views on models -->
-<!--
-    <record model="ir.actions.act_window" id="xendit.action_window">
-      <field name="name">xendit window</field>
-      <field name="res_model">xendit.xendit</field>
-      <field name="view_mode">tree,form</field>
     </record>
 -->
 
