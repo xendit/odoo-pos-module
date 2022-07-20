@@ -16,7 +16,7 @@
     # Categories can be used to filter modules in modules listing
     # Check https://github.com/odoo/odoo/blob/14.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
-    'category': 'Tools',
+    'category': 'Sales',
     'version': '0.1',
 
     # any module necessary for this one to work correctly
@@ -24,18 +24,10 @@
 
     # always loaded
     'data': [
-        'security/ir.model.access.csv',
-        'views/views.xml',
-        'views/templates.xml',
-        'views/data.xml',
-        'views/xendit.xml',
-        'views/xendit_settings.xml'
+        'views/pos_payment_method_views.xml',
+        'views/point_of_sale_assets.xml'
     ],
-    'qweb': ['views/xendit_receipt.xml'],
-    # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
-    ],
+    'qweb': ['views/xendit_receipt.xml', 'static/src/xml/pos.xml'],
     'images': ['static/description/icon.png'],
     'application': True,
     'installable': True
