@@ -9,7 +9,6 @@ Slack Channel: [#p-integration](https://xendit.slack.com/archives/CFJ9Q3NKY)
 
 Slack Mentions: `@troops-tpi`
 
-
 ## How to run?
 1. Open terminal, run `docker-compose up`
 2. Open http://localhost:8069/ in browser

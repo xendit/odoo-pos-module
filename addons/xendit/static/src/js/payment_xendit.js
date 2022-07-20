@@ -17,7 +17,7 @@ odoo.define('xendit.payment', function (require) {
     
             return this._xendit_pay();
         },
-        
+
         send_payment_cancel: function (order, cid) {
             this._super.apply(this, arguments);
             // set only if we are polling
@@ -27,7 +27,7 @@ odoo.define('xendit.payment', function (require) {
         close: function () {
             this._super.apply(this, arguments);
         },
-    
+
         // private methods
         _reset_state: function () {
             this.was_cancelled = false;
@@ -35,18 +35,18 @@ odoo.define('xendit.payment', function (require) {
             this.remaining_polls = 2;
             clearTimeout(this.polling);
         },
-    
+
         _xendit_cancel: function (ignore_error) {
             console.log('_xendit_cancel')
     
             return Promise.resolve();
         },
-    
+
         _xendit_get_sale_id: function () {
             var config = this.pos.config;
             return _.str.sprintf('%s (ID: %s)', config.display_name, config.id);
         },
-    
+
         _handle_odoo_connection_failure: function (data) {
             // handle timeout
             var line = this.pos.get_order().selected_paymentline;
@@ -57,7 +57,7 @@ odoo.define('xendit.payment', function (require) {
     
             return Promise.reject(data); // prevent subsequent onFullFilled's from being called
         },
-    
+
         _xendit_pay: function () {
             var self = this;
             console.log('_xendit_pay');
@@ -72,7 +72,7 @@ odoo.define('xendit.payment', function (require) {
                 return self._xendit_handle_response(data);
             });
         },
-    
+
         // Create the payment request 
         _call_xendit: function (data) {
             var self = this;
@@ -89,8 +89,7 @@ odoo.define('xendit.payment', function (require) {
                 shadow: true,
             }).catch(this._handle_odoo_connection_failure.bind(this));
         },
-    
-        
+
         _poll_for_response: function (resolve, reject) {
             var self = this;
             if (this.was_cancelled) {
@@ -134,9 +133,7 @@ odoo.define('xendit.payment', function (require) {
                 //    reject();
                     //reject();        
                 }
-                
-            });        
-            
+            });
         },
     
         _xendit_handle_response: function (response) {

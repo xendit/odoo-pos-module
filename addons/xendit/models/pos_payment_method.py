@@ -55,9 +55,7 @@ class PosPaymentMethod(models.Model):
         # notify the user if the terminal is no longer reachable due
         # to connectivity issues.
 
-        
         #latest_response = json.loads(latest_response) if latest_response else False
-        
 
 #        transaction_id = data["transaction_id"]
 

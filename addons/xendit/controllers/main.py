@@ -7,14 +7,12 @@ from odoo.http import request
 
 _logger = logging.getLogger(__name__)
 
-
 class PosXenditController(http.Controller):
     @http.route('/xendit/notification', type='json', methods=['POST'], auth='none', csrf=False)
     def notification(self):
         print('\n-----/xendit/notification ---------')
         data = json.loads(request.httprequest.data)
-    
-    
+
         print(repr(data))
         payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit')], limit=1)
         payment_method.xendit_latest_response = json.dumps(data)

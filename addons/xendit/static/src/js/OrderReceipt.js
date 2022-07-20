@@ -9,8 +9,6 @@ odoo.define('point_of_sale.OrderReceipt', function (require) {
     }
 
     class OrderReceipt extends PosComponent {
-
-
         constructor() {
             console.log("eslam faisal constructor")
             super(...arguments);

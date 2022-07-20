@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # from odoo import http
 
-
 # class Xendit(http.Controller):
 #     @http.route('/xendit/xendit/', auth='public')
 #     def index(self, **kw):
