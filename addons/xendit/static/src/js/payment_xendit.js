@@ -118,13 +118,14 @@ odoo.define('xendit.payment', function (require) {
             }).catch(function (data) {
                 reject();
                 return self._handle_odoo_connection_failure(data);
-            }).then(function (response) {
+            }).then(function (result) {
                 self.remaining_polls = 2;
-                
-                if (response.status == 'PAID' || response.status == 'SETTLE') {
+                const invoice = result.response;
+
+                if (invoice.status == 'PAID' || invoice.status == 'SETTLE') {
                     $('#xendit-payment-status').text('Paid');
                     resolve(true);
-                } else if(response.status == 'EXPIRED'){
+                } else if(invoice.status == 'EXPIRED'){
                     $('#xendit-payment-status').text('Expired');
                    line.set_payment_status('force_done');
                    reject();

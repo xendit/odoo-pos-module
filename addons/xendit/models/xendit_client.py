@@ -13,7 +13,7 @@ class XenditClient(models.TransientModel):
     _inherit = "res.config.settings"
     
     xendit_test_mode = fields.Boolean(help='Run transactions in the test environment.')
-    xendit_secret_key = fields.Char(string="Xendit Secret Key", help='Enter your xendit secret key.', copy=False)
+    xendit_secret_key = 'xnd_development_mLcDGtYo1MIqMfbEX2EKO0ktkWlXqEaUnD2hCxgTDEnMGszmWu5dZWDpEVMKeK'
     tpi_server_domain = "https://tpi.xendit.co"
 
     def _generate_address(data):
@@ -99,7 +99,7 @@ class XenditClient(models.TransientModel):
         return {
             "external_id": data["name"].split(" ")[1],
             "amount": data["total_rounded"],
-            "currency": data["currency"]["name"],
+            "currency": 'IDR',
             "payer_email": customer["email"] if len(customer) > 0 else "test@example.com",
             "description": data["name"],
             "items": self._generate_items(data),
@@ -107,7 +107,7 @@ class XenditClient(models.TransientModel):
             "client_type": "INTEGRATION",
         }
 
-    def _create_invoice_via_tpi(self, data):
+    def _create_invoice(self, data):
         endpoint = self.tpi_server_domain + '/payment/xendit/invoice'
         headers = self._genenrate_header(self)
         payload = self._generate_payload(self, data)

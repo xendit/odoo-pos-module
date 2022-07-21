@@ -77,7 +77,7 @@ class PosPaymentMethod(models.Model):
         pos.payment.method.
         '''
 
-        invoice = xendit_client.XenditClient._create_invoice_via_tpi(xendit_client.XenditClient, json.loads(json.dumps(data)))
+        invoice = xendit_client.XenditClient._create_invoice(xendit_client.XenditClient, json.loads(json.dumps(data)))
         return invoice
 
     @api.onchange('use_payment_terminal')
