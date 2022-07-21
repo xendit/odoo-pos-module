@@ -27,7 +27,11 @@
         'views/pos_payment_method_views.xml',
         'views/point_of_sale_assets.xml'
     ],
-    'qweb': ['views/xendit_receipt.xml', 'static/src/xml/pos.xml'],
+    'qweb': [
+        'views/xendit_receipt.xml', 
+        'static/src/xml/pos.xml', 
+        'static/src/xml/xendit_qrcode_popup.xml'
+    ],
     'images': ['static/description/icon.png'],
     'application': True,
     'installable': True
