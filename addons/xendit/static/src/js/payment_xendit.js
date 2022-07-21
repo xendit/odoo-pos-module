@@ -158,7 +158,7 @@ odoo.define('xendit.payment', function (require) {
                 Gui.showPopup("XenditQRCodePopup", {
                     'title': _t('Scan to pay'),
                     'qrCodeImage': self._generate_qr_code(response.invoice_url),
-                    'shortInvoiceUrl': response.invoice_url,
+                    'shortInvoiceUrl': response.short_invoice_url,
                 });
 
                 self.set_xendit_invoice_id(response.id);
