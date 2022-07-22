@@ -92,7 +92,7 @@ class XenditClient(models.TransientModel):
         base64_bytes = base64.b64encode(secret_key_bytes)
         return base64_bytes.decode('ascii')
 
-    def _genenrate_header(self):
+    def _generate_header(self):
         return {
             'content-type': 'application/json',
             'x-plugin-name': 'ODOO_POS',
@@ -115,7 +115,7 @@ class XenditClient(models.TransientModel):
 
     def _create_invoice(self, data):
         endpoint = self.tpi_server_domain + '/payment/xendit/invoice'
-        headers = self._genenrate_header(self)
+        headers = self._generate_header(self)
         payload = self._generate_payload(self, data)
 
         try:
@@ -138,7 +138,7 @@ class XenditClient(models.TransientModel):
 
     def _get_invoice(self, invoice_id):
         endpoint = self.tpi_server_domain + '/payment/xendit/invoice/' + invoice_id
-        headers = self._genenrate_header(self)
+        headers = self._generate_header(self)
 
         try:
             res = requests.get(endpoint, headers=headers, timeout=10)
