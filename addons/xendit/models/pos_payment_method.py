@@ -27,7 +27,7 @@ class PosPaymentMethod(models.Model):
     xendit_test_mode = fields.Boolean(help='Run transactions in the test environment.')
     xendit_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Xendit.', copy=False, groups='base.group_erp_manager')
     xendit_latest_diagnosis = fields.Char(help='Technical field used to determine if the terminal is still connected.', copy=False, groups='base.group_erp_manager')
-
+    
     xendit_invoice_id = ''
 
     @api.constrains('xendit_terminal_identifier')
@@ -76,8 +76,10 @@ class PosPaymentMethod(models.Model):
         /xendit/notification which will need to write on
         pos.payment.method.
         '''
-
-        invoice = xendit_client.XenditClient._create_invoice(xendit_client.XenditClient, json.loads(json.dumps(data)))
+        invoice = xendit_client.XenditClient._create_invoice(
+            xendit_client.XenditClient, 
+            json.loads(json.dumps(data))
+        )
         return invoice
 
     @api.onchange('use_payment_terminal')

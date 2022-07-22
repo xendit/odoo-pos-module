@@ -7,14 +7,20 @@ import json
 import requests
 import base64
 
+from odoo.http import request
 from odoo import models, fields
 
-class XenditClient(models.TransientModel):   
-    _inherit = "res.config.settings"
-    
-    xendit_test_mode = fields.Boolean(help='Run transactions in the test environment.')
-    xendit_secret_key = 'xnd_development_mLcDGtYo1MIqMfbEX2EKO0ktkWlXqEaUnD2hCxgTDEnMGszmWu5dZWDpEVMKeK'
+class XenditClient(models.TransientModel):
+
     tpi_server_domain = "https://tpi.xendit.co"
+
+    def _get_xendit_api_key():
+        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit')], limit=1)
+        return payment_method.xendit_secret_key
+
+    def _get_xendit_test_mode():
+        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit')], limit=1)
+        return payment_method.xendit_test_mode
 
     def _generate_address(data):
         addresses = []
@@ -81,7 +87,7 @@ class XenditClient(models.TransientModel):
         return items
 
     def _encodeAPIKey(self):
-        secret_key = self.xendit_secret_key + ":"
+        secret_key = self._get_xendit_api_key() + ":"
         secret_key_bytes = secret_key.encode('ascii')
         base64_bytes = base64.b64encode(secret_key_bytes)
         return base64_bytes.decode('ascii')

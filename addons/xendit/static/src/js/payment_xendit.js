@@ -108,6 +108,8 @@ odoo.define('xendit.payment', function (require) {
                 "xendit_invoice_id": self.xendit_invoice_id
             };
 
+            console.log(data);
+
             return rpc.query({
                 model: 'pos.payment.method',
                 method: 'get_latest_xendit_status',
