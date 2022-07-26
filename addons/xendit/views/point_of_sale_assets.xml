@@ -3,7 +3,8 @@
     <template id="assets" inherit_id="point_of_sale.assets">
         <xpath expr="." position="inside">
             <script type="text/javascript" src="/xendit/static/src/js/payment_xendit.js"></script>
-            <script type="text/javascript" src="/xendit/static/src/js/models.js"></script>       
+            <script type="text/javascript" src="/xendit/static/src/js/models.js"></script>
+            <script type="text/javascript" src="/xendit/static/src/js/xendit_qrcode_popup.js"></script>
         </xpath>
     </template>
 </odoo>
