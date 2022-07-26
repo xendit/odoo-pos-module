@@ -14,7 +14,6 @@ from odoo.http import request
 from . import xendit_client
 
 _logger = logging.getLogger(__name__)
-xenditClient = xendit_client.XenditClient()
 
 class PosPaymentMethod(models.Model):
     _inherit = 'pos.payment.method'
@@ -51,8 +50,6 @@ class PosPaymentMethod(models.Model):
         '''See the description of proxy_xendit_request as to why this is an
         @api.model function.
         '''
-        print('\n --- Xendit get_latest_xendit_status ----')
-        pprint(data)
                 
         # Poll the status of the terminal if there's no new
         # notification we received. This is done so we can quickly
@@ -76,6 +73,7 @@ class PosPaymentMethod(models.Model):
         /xendit/notification which will need to write on
         pos.payment.method.
         '''
+
         invoice = xendit_client.XenditClient._create_invoice(
             xendit_client.XenditClient, 
             json.loads(json.dumps(data))

@@ -74,7 +74,7 @@ odoo.define('xendit.payment', function (require) {
         // Create the payment request 
         _call_xendit: function (data) {
             const self = this;
-            
+
             return rpc.query({
                 model: 'pos.payment.method',
                 method: 'request_payment',
@@ -108,8 +108,6 @@ odoo.define('xendit.payment', function (require) {
                 "xendit_invoice_id": self.xendit_invoice_id
             };
 
-            console.log(data);
-
             return rpc.query({
                 model: 'pos.payment.method',
                 method: 'get_latest_xendit_status',
@@ -124,20 +122,30 @@ odoo.define('xendit.payment', function (require) {
                 self.remaining_polls = 2;
                 const invoice = result.response;
 
-                if (invoice.status == 'PAID' || invoice.status == 'SETTLE') {
-                    $('#xendit-payment-status').text('Paid');
-                    resolve(true);
-                } else if(invoice.status == 'EXPIRED'){
-                    $('#xendit-payment-status').text('Expired');
-                   line.set_payment_status('force_done');
-                   reject();
-                }
+                self._update_payment_status(invoice, resolve, reject);
             });
+        },
+
+        _update_payment_status: function(invoice, resolve, reject) {
+            if (invoice.status == 'PAID' || invoice.status == 'SETTLED') {
+                $('#xendit-payment-status').text('Paid');
+                $("#invoice-link > a").text('Paid');
+                resolve(true);
+            } else if(invoice.status == 'EXPIRED'){
+                $('#xendit-payment-status').text('Expired');
+                $("#invoice-link > a").text('Expired');
+               line.set_payment_status('force_done');
+               reject();
+            }
         },
 
         _generate_qr_code: function (invoice_url) {
             return '<img src="https://api.qrserver.com/v1/create-qr-code/?data=' + invoice_url + '" '
             + 'alt="" width="180px" height="180px"/>';
+        },
+
+        _generate_invoice_link: function (invoice_url) {
+            return '<a class="button next highlight" style="float:none;" href="' + invoice_url + '" target="_blank">Pay at Xendit</a>'
         },
     
         _xendit_handle_response: function (response) {
@@ -161,7 +169,7 @@ odoo.define('xendit.payment', function (require) {
                 Gui.showPopup("XenditQRCodePopup", {
                     'title': _t('Scan to pay'),
                     'qrCodeImage': self._generate_qr_code(response.invoice_url),
-                    'shortInvoiceUrl': response.short_invoice_url,
+                    'invoiceLink': self._generate_invoice_link(response.invoice_url),
                 });
 
                 self.set_xendit_invoice_id(response.id);

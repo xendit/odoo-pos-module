@@ -15,7 +15,10 @@ class XenditClient(models.TransientModel):
     tpi_server_domain = "https://tpi.xendit.co"
 
     def _get_xendit_api_key():
-        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit')], limit=1)
+        payment_method = request.env['pos.payment.method'].sudo().search(
+            [
+                ('use_payment_terminal', '=', 'xendit')
+            ], limit=1)
         return payment_method.xendit_secret_key
 
     def _get_xendit_test_mode():
@@ -28,18 +31,12 @@ class XenditClient(models.TransientModel):
         if data["client"] == None:
             return addresses
 
-        if data["client"]["city"] : city = data["client"]["city"]
-        if data["client"]["country_id"] : country = data["client"]["country_id"][1]
-        if data["client"]["zip"] : postal_code = data["client"]["zip"]
-        if data["client"]["state_id"] != "" : state = data["client"]["state_id"][1]
-        if data["client"]["street"] != "" : street = data["client"]["street"]
-
         address = {
-            "city": city,
-            "country": country,
-            "postal_code": postal_code,
-            "state": state,
-            "street_line1": street
+            "city": data["client"]["city"],
+            "country": data["client"]["country_id"][1],
+            "postal_code": data["client"]["zip"],
+            "state": data["client"]["state_id"][1],
+            "street_line1": data["client"]["street"]
         }
         addresses.append(address)
         return addresses
@@ -49,14 +46,10 @@ class XenditClient(models.TransientModel):
         if data["client"] == None:
             return {}
 
-        if data["client"]["name"] : name = data["client"]["name"]
-        if data["client"]["email"] : email = data["client"]["email"]
-        if data["client"]["phone"] : phone = data["client"]["phone"]
-
         return {
-            "given_names": name,
-            "email": email,
-            "mobile_number": phone,
+            "given_names": data["client"]["name"],
+            "email": data["client"]["email"],
+            "mobile_number": data["client"]["phone"],
             "address": self._generate_address(data)
         }
 
@@ -105,6 +98,7 @@ class XenditClient(models.TransientModel):
         return {
             "external_id": data["name"].split(" ")[1],
             "amount": data["total_rounded"],
+            # "currency": data["currency"]["name"],
             "currency": 'IDR',
             "payer_email": customer["email"] if len(customer) > 0 else "test@example.com",
             "description": data["name"],

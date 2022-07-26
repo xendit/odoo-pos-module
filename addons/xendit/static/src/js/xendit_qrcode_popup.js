@@ -25,7 +25,7 @@ odoo.define('xendit.XenditQRCodePopup', function(require) {
         title: 'Xendit QRcode',
         body: '',
         xenditPaymentStatus: 'Processing...',
-        shortInvoiceUrl: '',
+        invoiceUrl: '',
         qrCodeImage: ''
     };
     Registries.Component.add(XenditQRCodePopup);
