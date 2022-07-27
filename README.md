@@ -12,3 +12,15 @@ Slack Mentions: `@troops-tpi`
 ## How to run?
 1. Open terminal, run `docker-compose up`
 2. Open http://localhost:8069/ in browser
+
+## How to enable developer mode
+Add debug=1 query (?debug=1) in web url
+e.g: http://localhost:8069/web?debug=1%2Fweb#action=35&cids=1&menu_id=5&model=ir.module.module&view_type=kanban
+
+## How to show Xendit POS
+1. Enable developer mode
+2. Click Update Apps list and Update button
+<img width="1792" alt="Screen Shot 2022-07-27 at 15 37 29" src="https://user-images.githubusercontent.com/9255677/181202902-375784bb-baa8-4a05-8592-fe341728b4a7.png">
+
+3. Click Install
+<img width="1792" alt="Screen Shot 2022-07-27 at 15 42 23" src="https://user-images.githubusercontent.com/9255677/181203086-26929bd4-d4d8-4b5c-aabd-9251b5464928.png">
