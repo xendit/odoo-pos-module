@@ -10,7 +10,7 @@ import base64
 from odoo.http import request
 from odoo import models, fields
 
-class XenditClient(models.TransientModel):
+class XenditClient():
 
     tpi_server_domain = "https://tpi.xendit.co"
 
