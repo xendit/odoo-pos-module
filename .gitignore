@@ -1,3 +1,3 @@
-addons/xendit/__pycache__
-addons/xendit/controllers/__pycache__
-addons/xendit/models/__pycache__
+xendit_pos/__pycache__
+xendit_pos/controllers/__pycache__
+xendit_pos/models/__pycache__

@@ -32,7 +32,9 @@
         'static/src/xml/pos.xml', 
         'static/src/xml/xendit_qrcode_popup.xml'
     ],
-    'images': ['static/description/icon.png'],
+    'images': [
+        'static/description/cover.png'
+    ],
     'application': True,
     'installable': True
 }
