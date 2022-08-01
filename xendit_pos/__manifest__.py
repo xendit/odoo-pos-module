@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Xendit POS",
-
+    'license': 'LGPL-3',
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Xendit Odoo POS payment is an official built by Xendit to allow you in accepting online payments instantly. 
+        """,
 
     'description': """
-        Long description of module's purpose
+        Xendit Odoo POS payment is an official built by Xendit to allow you in accepting online payments instantly. 
     """,
 
     'author': "Xendit",
@@ -32,7 +32,9 @@
         'static/src/xml/pos.xml', 
         'static/src/xml/xendit_qrcode_popup.xml'
     ],
-    'images': ['static/description/icon.png'],
+    'images': [
+        'static/description/cover.png'
+    ],
     'application': True,
     'installable': True
 }

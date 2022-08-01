@@ -9,7 +9,7 @@ services:
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./config:/etc/odoo
-      - ./addons:/mnt/extra-addons
+      - ./xendit_pos:/mnt/extra-addons/xendit_pos
     environment:
     - HOST=mydb
     - USER=odoo
