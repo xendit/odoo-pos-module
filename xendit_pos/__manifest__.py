@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 {
     'name': "Xendit POS",
-
+    'license': 'LGPL-3',
     'summary': """
-        Short (1 phrase/line) summary of the module's purpose, used as
-        subtitle on modules listing or apps.openerp.com""",
+        Xendit is a leading payment gateway for Indonesia, the Philippines and Southeast Asia.
+        """,
 
     'description': """
-        Long description of module's purpose
+        Xendit is a leading payment gateway for Indonesia, the Philippines and Southeast Asia.
     """,
 
     'author': "Xendit",
