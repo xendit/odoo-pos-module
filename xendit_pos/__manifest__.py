@@ -37,5 +37,5 @@
     ],
     'application': True,
     'installable': True,
-    'currency': ['IDR', 'PHP', 'USD'],
+    'currency': ['IDR', 'PHP', 'USD']
 }
