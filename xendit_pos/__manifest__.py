@@ -36,5 +36,6 @@
         'static/description/cover.png'
     ],
     'application': True,
-    'installable': True
+    'installable': True,
+    'currency': ['IDR', 'PHP', 'USD'],
 }
