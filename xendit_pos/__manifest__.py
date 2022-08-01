@@ -3,11 +3,11 @@
     'name': "Xendit POS",
     'license': 'LGPL-3',
     'summary': """
-        Xendit is a leading payment gateway for Indonesia, the Philippines and Southeast Asia.
+        Xendit Odoo POS payment is an official built by Xendit to allow you in accepting online payments instantly. 
         """,
 
     'description': """
-        Xendit is a leading payment gateway for Indonesia, the Philippines and Southeast Asia.
+        Xendit Odoo POS payment is an official built by Xendit to allow you in accepting online payments instantly. 
     """,
 
     'author': "Xendit",
