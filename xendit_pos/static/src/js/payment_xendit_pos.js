@@ -1,4 +1,4 @@
-odoo.define('xendit.payment', function (require) {
+odoo.define('xendit_pos.payment', function (require) {
     "use strict";
     
     const core = require('web.core');
@@ -10,7 +10,7 @@ odoo.define('xendit.payment', function (require) {
     const _t = core._t;
     const xendit_invoice_id = '';
 
-    const PaymentXendit = PaymentInterface.extend({
+    const PaymentXenditPOS = PaymentInterface.extend({
         send_payment_request: function (cid) {
             this._super.apply(this, arguments);
             this._reset_state();
@@ -103,14 +103,14 @@ odoo.define('xendit.payment', function (require) {
             const data = {
                 'sale_id': this._xendit_get_sale_id(),
                 'transaction_id': order.uid,
-                'wallet_id': this.payment_method.xendit_secret_key,
+                'wallet_id': this.payment_method.xendit_pos_secret_key,
                 'requested_amount': line.amount,
                 "xendit_invoice_id": self.xendit_invoice_id
             };
 
             return rpc.query({
                 model: 'pos.payment.method',
-                method: 'get_latest_xendit_status',
+                method: 'get_latest_xendit_pos_status',
                 args: [data],
             }, {
                 timeout: 5000,
@@ -208,6 +208,6 @@ odoo.define('xendit.payment', function (require) {
         },
     });
 
-    return PaymentXendit;
+    return PaymentXenditPOS;
     });
     

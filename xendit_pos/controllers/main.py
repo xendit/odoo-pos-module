@@ -14,5 +14,5 @@ class PosXenditController(http.Controller):
         data = json.loads(request.httprequest.data)
 
         print(repr(data))
-        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit')], limit=1)
-        payment_method.xendit_latest_response = json.dumps(data)
+        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit_pos')], limit=1)
+        payment_method.xendit_pos_latest_response = json.dumps(data)

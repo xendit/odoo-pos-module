@@ -5,7 +5,7 @@
         <template id="assets" inherit_id="point_of_sale.assets">
             <xpath expr="//script[@src='/point_of_sale/static/src/js/Screens/ReceiptScreen/OrderReceipt.js']"
                    position="replace">
-                <script type="text/javascript" src="/xendit/static/src/js/OrderReceipt.js"/>
+                <script type="text/javascript" src="/xendit_pos/static/src/js/OrderReceipt.js"/>
             </xpath>
 
         </template>
