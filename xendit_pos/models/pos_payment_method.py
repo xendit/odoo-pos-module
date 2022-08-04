@@ -19,47 +19,52 @@ class PosPaymentMethod(models.Model):
     _inherit = 'pos.payment.method'
 
     def _get_payment_terminal_selection(self):
-        return super(PosPaymentMethod, self)._get_payment_terminal_selection() + [('xendit', 'Xendit')]
+        return super(PosPaymentMethod, self)._get_payment_terminal_selection() + [('xendit_pos', 'Xendit')]
 
-    xendit_secret_key = fields.Char(string="Xendit Secret Key", help='Enter your xendit secret key.', copy=False)
-    xendit_terminal_identifier = fields.Char(help='[Terminal model]-[Serial number], for example: P400Plus-123456789', copy=False)
-    xendit_test_mode = fields.Boolean(help='Run transactions in the test environment.')
-    xendit_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Xendit.', copy=False, groups='base.group_erp_manager')
-    xendit_latest_diagnosis = fields.Char(help='Technical field used to determine if the terminal is still connected.', copy=False, groups='base.group_erp_manager')
+    xendit_pos_secret_key = fields.Char(string="Xendit Secret Key", help='Enter your xendit secret key.', copy=False)
+    xendit_pos_terminal_identifier = fields.Char(help='[Terminal model]-[Serial number], for example: P400Plus-123456789', copy=False)
+    xendit_pos_test_mode = fields.Boolean(help='Run transactions in the test environment.')
+    xendit_pos_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Xendit.', copy=False, groups='base.group_erp_manager')
+    xendit_pos_latest_diagnosis = fields.Char(help='Technical field used to determine if the terminal is still connected.', copy=False, groups='base.group_erp_manager')
     
     xendit_invoice_id = ''
+    xenditClient = xendit_client.XenditClient
 
-    @api.constrains('xendit_terminal_identifier')
-    def _check_xendit_terminal_identifier(self):
+    @api.constrains('xendit_pos_terminal_identifier')
+    def _check_xendit_pos_terminal_identifier(self):
         for payment_method in self:
-            if not payment_method.xendit_terminal_identifier:
+            if not payment_method.xendit_pos_terminal_identifier:
                 continue
             existing_payment_method = self.search([('id', '!=', payment_method.id),
-                                                   ('xendit_terminal_identifier', '=', payment_method.xendit_terminal_identifier)],
+                                                   ('xendit_pos_terminal_identifier', '=', payment_method.xendit_pos_terminal_identifier)],
                                                   limit=1)
             if existing_payment_method:
                 raise ValidationError(_('Terminal %s is already used on payment method %s.')
-                                      % (payment_method.xendit_terminal_identifier, existing_payment_method.display_name))
+                                      % (payment_method.xendit_pos_terminal_identifier, existing_payment_method.display_name))
 
     def _is_write_forbidden(self, fields):
-        whitelisted_fields = set(('xendit_latest_response', 'xendit_latest_diagnosis'))
+        whitelisted_fields = set(('xendit_pos_latest_response', 'xendit_pos_latest_diagnosis'))
         return super(PosPaymentMethod, self)._is_write_forbidden(fields - whitelisted_fields)
 
     @api.model
-    def get_latest_xendit_status(self, data):
-        '''See the description of proxy_xendit_request as to why this is an
+    def get_latest_xendit_pos_status(self, data):
+        '''See the description of proxy_xendit_pos_request as to why this is an
         @api.model function.
         '''
-                
+
         # Poll the status of the terminal if there's no new
         # notification we received. This is done so we can quickly
         # notify the user if the terminal is no longer reachable due
         # to connectivity issues.
 
-        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit')], limit=1)
-        payment_method.xendit_latest_response = ''  # avoid handling old responses multiple times
-        
-        invoice = xendit_client.XenditClient._get_invoice(xendit_client.XenditClient, data["xendit_invoice_id"])
+        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit_pos')], limit=1)
+        payment_method.xendit_pos_latest_response = ''  # avoid handling old responses multiple times
+
+        self.xenditClient._set_company_id(self.xenditClient, self.env.company.id)
+        invoice = self.xenditClient._get_invoice(
+            self.xenditClient,
+            data["xendit_invoice_id"]
+        )
         return { 'response': invoice }
 
     @api.model
@@ -73,16 +78,17 @@ class PosPaymentMethod(models.Model):
         /xendit/notification which will need to write on
         pos.payment.method.
         '''
-
-        invoice = xendit_client.XenditClient._create_invoice(
-            xendit_client.XenditClient, 
-            json.loads(json.dumps(data))
+        
+        self.xenditClient._set_company_id(self.xenditClient, self.env.company.id)
+        invoice = self.xenditClient._create_invoice(
+            self.xenditClient,
+            json.loads(json.dumps(data))           
         )
         return invoice
 
     @api.onchange('use_payment_terminal')
     def _onchange_use_payment_terminal(self):
         super(PosPaymentMethod, self)._onchange_use_payment_terminal()
-        if self.use_payment_terminal != 'xendit':
-            self.xendit_secret_key = False
-            self.xendit_terminal_identifier = False
+        if self.use_payment_terminal != 'xendit_pos':
+            self.xendit_pos_secret_key = False
+            self.xendit_pos_terminal_identifier = False

@@ -28,7 +28,7 @@
         'views/point_of_sale_assets.xml'
     ],
     'qweb': [
-        'views/xendit_receipt.xml', 
+        'views/xendit_pos_receipt.xml', 
         'static/src/xml/pos.xml', 
         'static/src/xml/xendit_qrcode_popup.xml'
     ],
