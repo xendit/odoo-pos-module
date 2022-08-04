@@ -12,24 +12,25 @@ from odoo import models, fields
 
 class XenditClient():
 
-    tpi_server_domain = "https://tpi.xendit.co"
-    company_id = ""
+    tpi_server_url = "https://tpi.xendit.co"
+    odoo_company_id = ""
 
-    def _set_company_id(self, company_id):
-        self.company_id = company_id
+    def _set_odoo_company_id(self, company_id):
+        self.odoo_company_id = company_id
         return self
 
-    def _get_xendit_api_key(self):
-        payment_method = request.env['pos.payment.method'].sudo().search(
-            [
-                ('use_payment_terminal', '=', 'xendit_pos'),
-                ('company_id', '=', self.company_id)
-            ], limit=1)
-        return payment_method.xendit_pos_secret_key
+    def _get_xendit_payment_method(self):
+        return request.env['pos.payment.method'].sudo().search(
+                [
+                    ('use_payment_terminal', '=', 'xendit_pos'),
+                    ('company_id', '=', self.odoo_company_id)
+                ],
+                limit=1
+            )
 
-    def _get_xendit_test_mode():
-        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit_pos')], limit=1)
-        return payment_method.xendit_test_mode
+    def _get_xendit_api_key(self):
+        xendit_payment_method = self._get_xendit_payment_method(self)
+        return xendit_payment_method.xendit_pos_secret_key
 
     def _generate_address(data):
         addresses = []
@@ -104,8 +105,7 @@ class XenditClient():
         return {
             "external_id": data["name"].split(" ")[1],
             "amount": data["total_rounded"],
-            # "currency": data["currency"]["name"],
-            "currency": "IDR",
+            "currency": data["currency"]["name"],
             "payer_email": customer["email"] if len(customer) > 0 else "test@example.com",
             "description": data["name"],
             "items": self._generate_items(data),
@@ -115,7 +115,7 @@ class XenditClient():
 
     def _create_invoice(self, data):
 
-        endpoint = self.tpi_server_domain + '/payment/xendit/invoice'
+        endpoint = self.tpi_server_url + '/payment/xendit/invoice'
         headers = self._generate_header(self)
         payload = self._generate_payload(self, data)
 
@@ -139,7 +139,7 @@ class XenditClient():
 
     def _get_invoice(self, invoice_id):
 
-        endpoint = self.tpi_server_domain + '/payment/xendit/invoice/' + invoice_id
+        endpoint = self.tpi_server_url + '/payment/xendit/invoice/' + invoice_id
         headers = self._generate_header(self)
 
         try:

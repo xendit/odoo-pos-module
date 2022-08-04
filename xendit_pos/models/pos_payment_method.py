@@ -21,7 +21,7 @@ class PosPaymentMethod(models.Model):
     def _get_payment_terminal_selection(self):
         return super(PosPaymentMethod, self)._get_payment_terminal_selection() + [('xendit_pos', 'Xendit')]
 
-    xendit_pos_secret_key = fields.Char(string="Xendit Secret Key", help='Enter your xendit secret key.', copy=False)
+    xendit_pos_secret_key = fields.Char(string="Xendit Secret Key", required=True, help='Enter your xendit secret key.', copy=False)
     xendit_pos_terminal_identifier = fields.Char(help='[Terminal model]-[Serial number], for example: P400Plus-123456789', copy=False)
     xendit_pos_test_mode = fields.Boolean(help='Run transactions in the test environment.')
     xendit_pos_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Xendit.', copy=False, groups='base.group_erp_manager')
@@ -60,7 +60,7 @@ class PosPaymentMethod(models.Model):
         payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit_pos')], limit=1)
         payment_method.xendit_pos_latest_response = ''  # avoid handling old responses multiple times
 
-        self.xenditClient._set_company_id(self.xenditClient, self.env.company.id)
+        self.xenditClient._set_odoo_company_id(self.xenditClient, self.env.company.id)
         invoice = self.xenditClient._get_invoice(
             self.xenditClient,
             data["xendit_invoice_id"]
@@ -79,7 +79,7 @@ class PosPaymentMethod(models.Model):
         pos.payment.method.
         '''
         
-        self.xenditClient._set_company_id(self.xenditClient, self.env.company.id)
+        self.xenditClient._set_odoo_company_id(self.xenditClient, self.env.company.id)
         invoice = self.xenditClient._create_invoice(
             self.xenditClient,
             json.loads(json.dumps(data))           
