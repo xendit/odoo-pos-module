@@ -24,17 +24,26 @@
 
     # always loaded
     'data': [
-        'views/pos_payment_method_views.xml',
-        'views/point_of_sale_assets.xml'
+        'views/pos_payment_method_views.xml'
     ],
+    # qweb For Odoo 14.0
     'qweb': [
-        'views/xendit_pos_receipt.xml', 
-        'static/src/xml/pos.xml', 
         'static/src/xml/xendit_qrcode_popup.xml'
     ],
     'images': [
         'static/description/cover.png'
     ],
     'application': True,
-    'installable': True
+    'installable': True,
+    'assets': {
+        'web.assets_backend': [
+            'xendit_pos/static/src/js/payment_xendit_pos.js',
+            'xendit_pos/static/src/js/models.js',
+            'xendit_pos/static/src/js/xendit_qrcode_popup.js'
+        ],
+        # qweb For Odoo 15.0
+        'web.assets_qweb': [
+            'xendit_pos/static/src/xml/xendit_qrcode_popup.xml'
+        ],
+    }
 }
