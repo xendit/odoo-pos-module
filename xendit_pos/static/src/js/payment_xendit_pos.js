@@ -132,6 +132,9 @@ odoo.define('xendit_pos.payment', function (require) {
                 $("#invoice-link > a").text('Paid');
                 resolve(true);
             } else if(invoice.status == 'EXPIRED'){
+                
+                const line = this.pos.get_order().selected_paymentline;
+
                 $('#xendit-payment-status').text('Expired');
                 $("#invoice-link > a").text('Expired');
                line.set_payment_status('force_done');
