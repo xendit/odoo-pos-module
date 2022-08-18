@@ -9,11 +9,14 @@ import base64
 
 from odoo.http import request
 from odoo import models, fields
+from . import data_utils
 
 class XenditClient():
 
     tpi_server_url = "https://tpi.xendit.co"
     odoo_company_id = ""
+
+    dataUtils = data_utils.DataUtils()
 
     def _set_odoo_company_id(self, company_id):
         self.odoo_company_id = company_id
@@ -28,90 +31,32 @@ class XenditClient():
                 limit=1
             )
 
-    def _get_xendit_api_key(self):
+    def _get_xendit_secret_key(self):
         xendit_payment_method = self._get_xendit_payment_method(self)
         return xendit_payment_method.xendit_pos_secret_key
 
-    def _generate_address(data):
-        addresses = []
-
-        if data["client"] == None:
-            return addresses
-
-        address = {
-            "city": data["client"]["city"],
-            "country": data["client"]["country_id"][1],
-            "postal_code": data["client"]["zip"],
-            "state": data["client"]["state_id"][1],
-            "street_line1": data["client"]["street"]
-        }
-        addresses.append(address)
-        return addresses
-
-    def _generate_customer(self, data):
-
-        if data["client"] == None:
-            return {}
-
-        return {
-            "given_names": data["client"]["name"],
-            "email": data["client"]["email"],
-            "mobile_number": data["client"]["phone"],
-            "address": self._generate_address(data)
-        }
-
-    def _generate_notification(self):
-        notificationReferences = {
-            "whatsapp",
-            "sms",
-            "email",
-            "viber"
-        }
-        return {
-            "invoice_created": notificationReferences,
-            "invoice_reminder": notificationReferences,
-            "invoice_paid": notificationReferences,
-            "invoice_expired":  notificationReferences
-        }
-
-    def _generate_items(data):
-        items = []
-
-        for orderline in data["orderlines"]:
-            item = {
-                "name": orderline["product_name"],
-                "price": orderline["price"],
-                "quantity": orderline["quantity"]
-            }
-            items.append(item)
-        return items
-
-    def _encodeAPIKey(self):
-        secret_key = self._get_xendit_api_key(self) + ":"
-        secret_key_bytes = secret_key.encode('ascii')
-        base64_bytes = base64.b64encode(secret_key_bytes)
-        return base64_bytes.decode('ascii')
-
     def _generate_header(self):
-        return {
-            'content-type': 'application/json',
-            'x-plugin-name': 'ODOO_POS',
-            'x-plugin-version': '1.0',
-            'Authorization': 'Basic ' + self._encodeAPIKey(self)
-        }
+        return self.dataUtils.generateHeader(
+            self._get_xendit_secret_key(self)
+        )
 
     def _generate_payload(self, data):
-        customer = self._generate_customer(self, data)
-        return {
+
+        customerObject = self.dataUtils.generateInvoiceCustomer(data['client'])
+        payload = {
             "external_id": data["name"].split(" ")[1],
             "amount": data["total_rounded"],
             "currency": data["currency"]["name"],
-            "payer_email": customer["email"] if len(customer) > 0 else "test@example.com",
             "description": data["name"],
-            "items": self._generate_items(data),
-            "customer": customer,
+            "items": self.dataUtils.generateInvoiceItems(data),
+            "customer": customerObject,
             "client_type": "INTEGRATION",
         }
+
+        if len(customerObject) > 0 and not self.dataUtils.isEmptyString(customerObject["email"]):
+            payload['payer_email'] = customerObject["email"]
+
+        return payload
 
     def _create_invoice(self, data):
 
