@@ -43,16 +43,20 @@ class XenditClient():
     def _generate_payload(self, data):
 
         customerObject = self.dataUtils.generateInvoiceCustomer(data['client'])
-        return {
+        payload = {
             "external_id": data["name"].split(" ")[1],
             "amount": data["total_rounded"],
             "currency": data["currency"]["name"],
-            "payer_email": customerObject["email"] if len(customerObject) > 0 else "test@example.com",
             "description": data["name"],
             "items": self.dataUtils.generateInvoiceItems(data),
             "customer": customerObject,
             "client_type": "INTEGRATION",
         }
+
+        if len(customerObject) > 0 and not self.dataUtils.isEmptyString(customerObject["email"]):
+            payload['payer_email'] = customerObject["email"]
+
+        return payload
 
     def _create_invoice(self, data):
 
