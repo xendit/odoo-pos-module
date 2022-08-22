@@ -24,11 +24,12 @@
 
     # always loaded
     'data': [
-        'views/pos_payment_method_views.xml'
+        'views/pos_payment_method_views.xml',
+        'views/point_of_sale_assets.xml'
     ],
     # qweb For Odoo 14.0
     'qweb': [
-        'static/src/xml/xendit_qrcode_popup.xml'
+        'static/src/xml/xendit_qrcode_popup.xml',
     ],
     'images': [
         'static/description/cover.png'
