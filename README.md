@@ -24,3 +24,6 @@ e.g: http://localhost:8069/web?debug=1%2Fweb#action=35&cids=1&menu_id=5&model=ir
 
 3. Click Install
 <img width="1792" alt="Screen Shot 2022-07-27 at 15 42 23" src="https://user-images.githubusercontent.com/9255677/181203086-26929bd4-d4d8-4b5c-aabd-9251b5464928.png">
+
+## Note:
+- If you're using Odoo 14.x, you should switch to branch 14.0 to get the correct version
