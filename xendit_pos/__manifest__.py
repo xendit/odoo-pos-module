@@ -25,6 +25,7 @@
     # always loaded
     'data': [
         'views/pos_payment_method_views.xml',
+        # Assets for Odoo 14.0
         'views/point_of_sale_assets.xml'
     ],
     # qweb For Odoo 14.0
