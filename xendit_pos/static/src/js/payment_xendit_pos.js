@@ -68,8 +68,8 @@ odoo.define('xendit_pos.payment', function (require) {
             const order = this.pos.get_order();
             const payment_line = order.selected_paymentline;
 
+            // Check if the order total amount <= 0 then show the error message.
             if(payment_line.amount <= 0){
-                // TODO check if it's possible or not
                 this._show_error(
                     _t("Cannot process transactions with zero or negative amount.")
                 );
