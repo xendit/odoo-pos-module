@@ -67,7 +67,7 @@ odoo.define('xendit_pos.payment', function (require) {
 
             const order = this.pos.get_order();
             const payment_line = order.selected_paymentline;
-            if(payment_line.amount <= 0){
+            if (payment_line.amount <= 0) {
                 this._show_error(
                     _t("Cannot process transaction with zero or negative amount.")
                 );
@@ -168,7 +168,7 @@ odoo.define('xendit_pos.payment', function (require) {
 
             if (response.error) {
                 let errorMessage = _t(response.error.message)
-                if(response.error.status_code == 401){
+                if (response.error.status_code == 401) {
                     errorMessage = _t('Authentication failed. Please check your Xendit credentials.');
                 }
                 this._show_error(
@@ -179,7 +179,7 @@ odoo.define('xendit_pos.payment', function (require) {
                 return Promise.resolve();
             }
 
-            if(response.id){
+            if (response.id) {
                 Gui.showPopup("XenditQRCodePopup", {
                     'title': _t('Scan to pay'),
                     'qrCodeImage': self._generate_qr_code(response.invoice_url),
