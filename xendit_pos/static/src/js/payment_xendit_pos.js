@@ -53,10 +53,11 @@ odoo.define('xendit_pos.payment', function (require) {
 
         _handle_odoo_connection_failure: function (data) {
             // handle timeout
-            const line = this.pos.get_order().selected_paymentline;
-            if (line) {
-                line.set_payment_status('retry');
+            const payment_line = this.pos.get_order().selected_paymentline;
+            if (payment_line) {
+                payment_line.set_payment_status('retry');
             }
+            payment_line.set_payment_status('force_done');
             this._show_error(_('Could not connect to the Odoo server, please check your internet connection and try again.'));
             return Promise.reject(data); // prevent subsequent onFullFilled's from being called
         },
@@ -65,7 +66,19 @@ odoo.define('xendit_pos.payment', function (require) {
             const self = this;
 
             const order = this.pos.get_order();
+            const payment_line = order.selected_paymentline;
+
+            if(payment_line.amount <= 0){
+                // TODO check if it's possible or not
+                this._show_error(
+                    _t("Cannot process transactions with zero or negative amount.")
+                );
+                return Promise.resolve();
+            }
+
             const receipt_data = order.export_for_printing();
+            receipt_data['amount'] = payment_line.amount;
+            
             return this._call_xendit(receipt_data).then(function (data) {
                 return self._xendit_handle_response(data);
             });
@@ -74,7 +87,7 @@ odoo.define('xendit_pos.payment', function (require) {
         // Create the payment request 
         _call_xendit: function (data) {
             const self = this;
-
+            
             return rpc.query({
                 model: 'pos.payment.method',
                 method: 'request_payment',
@@ -98,13 +111,13 @@ odoo.define('xendit_pos.payment', function (require) {
             }
 
             const order = this.pos.get_order();
-            const line = order.selected_paymentline;
+            const payment_line = order.selected_paymentline;
 
             const data = {
                 'sale_id': this._xendit_get_sale_id(),
                 'transaction_id': order.uid,
                 'wallet_id': this.payment_method.xendit_pos_secret_key,
-                'requested_amount': line.amount,
+                'requested_amount': payment_line.amount,
                 "xendit_invoice_id": self.xendit_invoice_id
             };
 
@@ -133,12 +146,12 @@ odoo.define('xendit_pos.payment', function (require) {
                 resolve(true);
             } else if(invoice.status == 'EXPIRED'){
                 
-                const line = this.pos.get_order().selected_paymentline;
+                const payment_line = this.pos.get_order().selected_paymentline;
 
                 $('#xendit-payment-status').text('Expired');
                 $("#invoice-link > a").text('Expired');
-               line.set_payment_status('force_done');
-               reject();
+                payment_line.set_payment_status('force_done');
+                reject();
             }
         },
 
