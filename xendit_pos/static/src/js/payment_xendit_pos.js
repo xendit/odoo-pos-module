@@ -122,6 +122,12 @@ odoo.define('xendit_pos.payment', function (require) {
             const order = this.pos.get_order();
             const paymentLine = order.selected_paymentline;
 
+            // If the payment line dont have xendit invoice then stop polling retry.
+            if(paymentLine.getXenditInvoiceId() == null){
+                resolve(false);
+                return Promise.resolve();
+            }
+
             const data = {
                 'sale_id': this._xendit_get_sale_id(),
                 'transaction_id': order.uid,
@@ -147,7 +153,6 @@ odoo.define('xendit_pos.payment', function (require) {
                 if(invoice.id === paymentLine.getXenditInvoiceId()){
                     self._update_payment_status(invoice, resolve, reject);
                 }else{
-                    self._show_error(_t('The Xendit payment not exist.'));
                     paymentLine.set_payment_status('retry');
                     reject();
                 }
