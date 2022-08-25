@@ -104,3 +104,26 @@ class XenditClient():
             }
 
         return response
+
+    def _cancel_invoice(self, invoice_id):
+        endpoint = self.tpi_server_url + '/payment/xendit/invoice/' + invoice_id + '/expire'
+        headers = self._generate_header(self)
+
+        try:
+            res = requests.post(endpoint, headers=headers, timeout=10)
+        except requests.exceptions.RequestException as err:
+            print ("OOps: ",err)
+
+        # If error
+        if res.status_code != 200:
+            return {
+                'error': {
+                    'status_code': res.status_code,
+                    'message': 'Xendit invoice is not found or cancel failed.'
+                }
+            }
+
+        if(res.status_code == 200):
+            return True
+
+        return False
