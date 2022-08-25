@@ -21,7 +21,7 @@ class DataUtils():
             itemQuantity = orderline['quantity']
 
             # Currently we don't support the item has price = 0
-            if itemPrice > 0 and itemQuantity > 0:
+            if itemQuantity > 0:
                 item = {
                     'name': orderline['product_name'],
                     'price': itemPrice,
