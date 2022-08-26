@@ -37,6 +37,7 @@
     'installable': True,
     'assets': {
         'web.assets_backend': [
+            'xendit_pos/static/src/js/PaymentScreen.js',
             'xendit_pos/static/src/js/payment_xendit_pos.js',
             'xendit_pos/static/src/js/models.js',
             'xendit_pos/static/src/js/xendit_qrcode_popup.js'

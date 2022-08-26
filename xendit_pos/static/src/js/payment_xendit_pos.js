@@ -8,7 +8,6 @@ odoo.define('xendit_pos.payment', function (require) {
 
     // For string translations
     const _t = core._t;
-    const xendit_invoice_id = '';
 
     const PaymentXenditPOS = PaymentInterface.extend({
         send_payment_request: function (cid) {
@@ -22,12 +21,11 @@ odoo.define('xendit_pos.payment', function (require) {
             this._super.apply(this, arguments);
             // set only if we are polling
             this.was_cancelled = !!this.polling;
-            return this._xendit_cancel();
-        },
 
-        set_xendit_invoice_id: function(id){
-            this.xendit_invoice_id = id;
-            return this;
+            // Cancel order on Xendit
+            const paymentLine = this.pos.get_order().selected_paymentline;
+            const xenditInvoiceId = paymentLine.getXenditInvoiceId();
+            return this._xendit_cancel(xenditInvoiceId);
         },
 
         close: function () {
@@ -42,7 +40,20 @@ odoo.define('xendit_pos.payment', function (require) {
             clearTimeout(this.polling);
         },
 
-        _xendit_cancel: function (ignore_error) {
+        _xendit_cancel: function (xenditInvoiceId) {
+            const self = this;
+
+            rpc.query({
+                model: 'pos.payment.method',
+                method: 'cancel_payment',
+                args: [xenditInvoiceId],
+            }, {
+                timeout: 10000,
+                shadow: true,
+            }).catch(
+                this._handle_odoo_connection_failure.bind(this)
+            );
+
             return Promise.resolve();
         },
 
@@ -53,11 +64,11 @@ odoo.define('xendit_pos.payment', function (require) {
 
         _handle_odoo_connection_failure: function (data) {
             // handle timeout
-            const payment_line = this.pos.get_order().selected_paymentline;
-            if (payment_line) {
-                payment_line.set_payment_status('retry');
+            const paymentLine = this.pos.get_order().selected_paymentline;
+            if (paymentLine) {
+                paymentLine.set_payment_status('retry');
             }
-            payment_line.set_payment_status('force_done');
+            paymentLine.set_payment_status('force_done');
             this._show_error(_('Could not connect to the Odoo server, please check your internet connection and try again.'));
             return Promise.reject(data); // prevent subsequent onFullFilled's from being called
         },
@@ -66,8 +77,8 @@ odoo.define('xendit_pos.payment', function (require) {
             const self = this;
 
             const order = this.pos.get_order();
-            const payment_line = order.selected_paymentline;
-            if (payment_line.amount <= 0) {
+            const paymentLine = order.selected_paymentline;
+            if (paymentLine.amount <= 0) {
                 this._show_error(
                     _t("Cannot process transaction with zero or negative amount.")
                 );
@@ -75,7 +86,7 @@ odoo.define('xendit_pos.payment', function (require) {
             }
 
             const receipt_data = order.export_for_printing();
-            receipt_data['amount'] = payment_line.amount;
+            receipt_data['amount'] = paymentLine.amount;
             
             return this._call_xendit(receipt_data).then(function (data) {
                 return self._xendit_handle_response(data);
@@ -109,14 +120,20 @@ odoo.define('xendit_pos.payment', function (require) {
             }
 
             const order = this.pos.get_order();
-            const payment_line = order.selected_paymentline;
+            const paymentLine = order.selected_paymentline;
+
+            // If the payment line dont have xendit invoice then stop polling retry.
+            if(paymentLine.getXenditInvoiceId() == null){
+                resolve(false);
+                return Promise.resolve();
+            }
 
             const data = {
                 'sale_id': this._xendit_get_sale_id(),
                 'transaction_id': order.uid,
                 'wallet_id': this.payment_method.xendit_pos_secret_key,
-                'requested_amount': payment_line.amount,
-                "xendit_invoice_id": self.xendit_invoice_id
+                'requested_amount': paymentLine.amount,
+                "xendit_invoice_id": paymentLine.getXenditInvoiceId()
             };
 
             return rpc.query({
@@ -133,7 +150,12 @@ odoo.define('xendit_pos.payment', function (require) {
                 self.remaining_polls = 2;
                 const invoice = result.response;
 
-                self._update_payment_status(invoice, resolve, reject);
+                if(invoice.id === paymentLine.getXenditInvoiceId()){
+                    self._update_payment_status(invoice, resolve, reject);
+                }else{
+                    paymentLine.set_payment_status('retry');
+                    reject();
+                }
             });
         },
 
@@ -144,11 +166,10 @@ odoo.define('xendit_pos.payment', function (require) {
                 resolve(true);
             } else if(invoice.status == 'EXPIRED'){
                 
-                const payment_line = this.pos.get_order().selected_paymentline;
-
+                const paymentLine = this.pos.get_order().selected_paymentline;
                 $('#xendit-payment-status').text('Expired');
                 $("#invoice-link > a").text('Expired');
-                payment_line.set_payment_status('force_done');
+                paymentLine.set_payment_status('retry');
                 reject();
             }
         },
@@ -164,7 +185,7 @@ odoo.define('xendit_pos.payment', function (require) {
     
         _xendit_handle_response: function (response) {
             const self = this;
-            const line = this.pos.get_order().selected_paymentline;
+            const paymentLine = this.pos.get_order().selected_paymentline;
 
             if (response.error) {
                 let errorMessage = _t(response.error.message)
@@ -175,40 +196,40 @@ odoo.define('xendit_pos.payment', function (require) {
                     _t('System Error'),
                     errorMessage
                 );
-                line.set_payment_status('force_done');
+                paymentLine.set_payment_status('force_done');
                 return Promise.resolve();
-            }
 
-            if (response.id) {
+             } else if (response.id) {
+                
                 Gui.showPopup("XenditQRCodePopup", {
                     'title': _t('Scan to pay'),
                     'qrCodeImage': self._generate_qr_code(response.invoice_url),
                     'invoiceLink': self._generate_invoice_link(response.invoice_url),
                 });
 
-                self.set_xendit_invoice_id(response.id);
+                paymentLine.setXenditInvoiceId(response.id);
+                paymentLine.set_payment_status('waiting');
+                return this.start_get_status_polling();
             }
+        },
 
-            line.set_payment_status('waitingCard');
-            // this.pos.chrome.gui.current_screen.render_paymentlines();
-
-            const res = new Promise(function (resolve, reject) {
-                const order = self.pos.get_order();
-                const line = order.selected_paymentline;
-                //line.set_payment_status('waitingCard');
+        start_get_status_polling() {
+            var self = this;
+            var res = new Promise(function (resolve, reject) {
                 clearTimeout(self.polling);
-
+                self._poll_for_response(resolve, reject);
                 self.polling = setInterval(function () {
                     self._poll_for_response(resolve, reject);
-                }, 5000);
+                }, 5500);
             });
-
+    
             // make sure to stop polling when we're done
             res.finally(function () {
                 self._reset_state();
             });
-            
-            return res;    
+
+            Promise.resolve();
+            return res;
         },
 
         _show_error: function (title, msg) {

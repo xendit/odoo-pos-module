@@ -16,14 +16,19 @@ class DataUtils():
 
     def generateInvoiceItems(self, data):
         items = []
-
         for orderline in data['orderlines']:
-            item = {
-                'name': orderline['product_name'],
-                'price': orderline['price'],
-                'quantity': orderline['quantity']
-            }
-            items.append(item)
+            itemPrice = orderline['price']
+            itemQuantity = orderline['quantity']
+
+            # Currently we don't support the item has price = 0
+            if itemQuantity > 0:
+                item = {
+                    'name': orderline['product_name'],
+                    'price': itemPrice,
+                    'quantity': itemQuantity
+                }
+                items.append(item)
+
         return items
 
 

@@ -86,6 +86,15 @@ class PosPaymentMethod(models.Model):
         )
         return invoice
 
+    @api.model
+    def cancel_payment(self, xenditInvoiceId):
+        self.xenditClient._set_odoo_company_id(self.xenditClient, self.env.company.id)
+        res = self.xenditClient._cancel_invoice(
+            self.xenditClient,
+            xenditInvoiceId
+        )
+        return res
+
     @api.onchange('use_payment_terminal')
     def _onchange_use_payment_terminal(self):
         super(PosPaymentMethod, self)._onchange_use_payment_terminal()
