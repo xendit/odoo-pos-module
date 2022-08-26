@@ -6,6 +6,13 @@ odoo.define('xendit_pos.payment', function (require) {
     const PaymentInterface = require('point_of_sale.PaymentInterface');
     const { Gui } = require('point_of_sale.Gui');
 
+    const paymentStatus = {
+        PENDING: 'pending',
+        RETRY: 'retry',
+        WAITING: 'waiting',
+        FORCE_DONE: 'force_done'
+    }
+
     // For string translations
     const _t = core._t;
 
@@ -78,7 +85,7 @@ odoo.define('xendit_pos.payment', function (require) {
             // handle timeout
             const paymentLine = this.get_selected_payment();
             if (paymentLine) {
-                paymentLine.set_payment_status('retry');
+                paymentLine.set_payment_status(paymentStatus.RETRY);
             }
 
             this._show_error(_('Could not connect to the Odoo server, please check your internet connection and try again.'));
@@ -165,7 +172,7 @@ odoo.define('xendit_pos.payment', function (require) {
                 if (invoice.id === paymentLine.getXenditInvoiceId()) {
                     self._update_payment_status(invoice, resolve, reject);
                 } else {
-                    paymentLine.set_payment_status('retry');
+                    paymentLine.set_payment_status(paymentStatus.RETRY);
                     reject();
                 }
             });
@@ -182,7 +189,7 @@ odoo.define('xendit_pos.payment', function (require) {
 
                 const paymentLine = this.get_selected_payment();
                 if (paymentLine) {
-                    paymentLine.set_payment_status('retry');
+                    paymentLine.set_payment_status(paymentStatus.RETRY);
                 }
                 reject();
             }
@@ -211,7 +218,7 @@ odoo.define('xendit_pos.payment', function (require) {
                     errorMessage
                 );
                 if (paymentLine) {
-                    paymentLine.set_payment_status('force_done');
+                    paymentLine.set_payment_status(paymentStatus.FORCE_DONE);
                 }
                 return Promise.resolve();
 
@@ -225,7 +232,7 @@ odoo.define('xendit_pos.payment', function (require) {
 
                 if (paymentLine) {
                     paymentLine.setXenditInvoiceId(response.id);
-                    paymentLine.set_payment_status('waiting');
+                    paymentLine.set_payment_status(paymentStatus.WAITING);
                 }
                 return this.start_get_status_polling();
             }
