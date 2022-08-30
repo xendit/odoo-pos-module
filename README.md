@@ -1,5 +1,5 @@
-# odoo
-Odoo payment module
+# Xendit Odoo POS
+Xendit Odoo POS is payment addon
 
 ## Ownership
 
