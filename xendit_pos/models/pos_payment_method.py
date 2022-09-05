@@ -12,6 +12,7 @@ from odoo.exceptions import ValidationError
 
 from odoo.http import request
 from . import xendit_client
+from . import encrypt
 
 _logger = logging.getLogger(__name__)
 
@@ -22,6 +23,7 @@ class PosPaymentMethod(models.Model):
         return super(PosPaymentMethod, self)._get_payment_terminal_selection() + [('xendit_pos', 'Xendit')]
 
     xendit_pos_secret_key = fields.Char(string="Xendit Secret Key", required=True, help='Enter your xendit secret key.', copy=False)
+    xendit_encrypted_key = fields.Char(string="Xendit Encrypted Key", readonly=True, copy=False)
     xendit_pos_terminal_identifier = fields.Char(help='[Terminal model]-[Serial number], for example: P400Plus-123456789', copy=False)
     xendit_pos_test_mode = fields.Boolean(help='Run transactions in the test environment.')
     xendit_pos_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Xendit.', copy=False, groups='base.group_erp_manager')
@@ -29,6 +31,16 @@ class PosPaymentMethod(models.Model):
     
     xendit_invoice_id = ''
     xenditClient = xendit_client.XenditClient
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    @api.onchange('xendit_pos_secret_key')
+    def _onchange_xendit_secret_key(self):
+        if self.xendit_pos_secret_key:
+            self.xendit_pos_secret_key = encrypt.encrypt(self.xendit_pos_secret_key)
+        else:
+            ValidationError('Invalid xendit_pos_secret_key')
 
     @api.constrains('xendit_pos_terminal_identifier')
     def _check_xendit_pos_terminal_identifier(self):

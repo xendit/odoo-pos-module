@@ -9,7 +9,7 @@ import base64
 
 from odoo.http import request
 from odoo import models, fields
-from . import data_utils,  error_handler
+from . import data_utils,  error_handler, encrypt
 
 class XenditClient():
 
@@ -34,7 +34,7 @@ class XenditClient():
 
     def _get_xendit_secret_key(self):
         xendit_payment_method = self._get_xendit_payment_method(self)
-        return xendit_payment_method.xendit_pos_secret_key
+        return encrypt.decrypt(xendit_payment_method.xendit_pos_secret_key)
 
     def _generate_header(self):
         return self.dataUtils.generateHeader(
@@ -122,3 +122,6 @@ class XenditClient():
             return True
 
         return False
+
+    def generateRandomString(self, length):
+        return self.dataUtils.generateRandomString(length)

@@ -2,6 +2,8 @@
 from ast import In, Or
 import base64
 from operator import or_
+import random
+import string
 
 class DataUtils():
 
@@ -90,3 +92,8 @@ class DataUtils():
             'x-plugin-version': '1.0',
             'Authorization': 'Basic ' + encodedSecretKey
         }
+
+    def generateRandomString(length):
+        # choose from all lowercase letter
+        letters = string.ascii_lowercase
+        return ''.join(random.choice(letters) for i in range(length))
