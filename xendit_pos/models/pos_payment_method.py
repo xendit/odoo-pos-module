@@ -50,7 +50,7 @@ class PosPaymentMethod(models.Model):
         else:
             ValidationError('Invalid xendit_pos_secret_key')
 
-    def get_current_xendit_payment_method(self, terminal_id = None):
+    def get_current_xendit_payment_method(self, terminal_id):
         return request.env['pos.payment.method'].sudo().search(
             [
                 ('use_payment_terminal', '=', 'xendit_pos'),
