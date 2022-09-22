@@ -62,10 +62,11 @@ odoo.define('xendit_pos.payment', function (require) {
             }
 
             const xenditInvoiceId = paymentLine.getXenditInvoiceId();
+            const data = {'invoice_id': xenditInvoiceId, 'terminal_id': paymentLine.payment_method.xendit_pos_terminal_identifier}
             rpc.query({
                 model: 'pos.payment.method',
                 method: 'cancel_payment',
-                args: [xenditInvoiceId],
+                args: [data],
             }, {
                 timeout: 10000,
                 shadow: true,
@@ -106,6 +107,7 @@ odoo.define('xendit_pos.payment', function (require) {
 
             const receipt_data = order.export_for_printing();
             receipt_data['amount'] = paymentLine.amount;
+            receipt_data['terminal_id'] = paymentLine.payment_method.xendit_pos_terminal_identifier;
             
             return this._call_xendit(receipt_data).then(function (data) {
                 return self._xendit_handle_response(data);
@@ -150,7 +152,7 @@ odoo.define('xendit_pos.payment', function (require) {
             const data = {
                 'sale_id': this._xendit_get_sale_id(),
                 'transaction_id': order.uid,
-                'wallet_id': this.payment_method.xendit_pos_secret_key,
+                'terminal_id': this.payment_method.xendit_pos_terminal_identifier,
                 'requested_amount': paymentLine.amount,
                 "xendit_invoice_id": paymentLine.getXenditInvoiceId()
             };
