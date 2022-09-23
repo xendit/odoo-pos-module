@@ -45,7 +45,10 @@ class PosPaymentMethod(models.Model):
                 self.xendit_encrypt_key = encrypt.generateKey()
 
             # Set terminal_identifier and encrypt secret key
-            self.xendit_pos_terminal_identifier = encrypt.generateKey()
+            if self.xendit_pos_terminal_identifier is False or self.xendit_pos_terminal_identifier == '':
+                self.xendit_pos_terminal_identifier = encrypt.generateKey()
+
+            # encrypt secret key
             self.xendit_pos_secret_key = encrypt.encrypt(self.xendit_pos_secret_key, self.xendit_encrypt_key)
         else:
             ValidationError('Invalid xendit_pos_secret_key')
