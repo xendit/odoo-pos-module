@@ -41,7 +41,7 @@ class PosPaymentMethod(models.Model):
         if self.xendit_pos_secret_key:
 
             # Generate the encrypt key using to encrypt secret key
-            if self.xendit_encrypt_key is False or self.xendit_encrypt_key == "":
+            if self.xendit_encrypt_key is False or self.xendit_encrypt_key == '':
                 self.xendit_encrypt_key = encrypt.generateKey()
 
             # Set terminal_identifier and encrypt secret key
