@@ -13,6 +13,9 @@ from . import data_utils,  error_handler, encrypt
 
 class XenditClient():
 
+    plugin_name = 'ODOO_POS'
+    plugin_version = '1.0'
+
     tpi_server_url = "https://tpi.xendit.co"
 
     dataUtils = data_utils.DataUtils()
@@ -26,7 +29,9 @@ class XenditClient():
 
     def generate_header(self, payment_method):
         return self.dataUtils.generateHeader(
-            self.get_xendit_secret_key(self, payment_method)
+            self.get_xendit_secret_key(self, payment_method),
+            self.plugin_name,
+            self.plugin_version
         )
 
     def generate_payload(self, data):
