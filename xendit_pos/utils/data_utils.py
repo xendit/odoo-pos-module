@@ -93,17 +93,3 @@ class DataUtils():
             'Authorization': 'Basic ' + encodedSecretKey
         }
 
-    def initQrCode():
-        return qrcode.QRCode(  
-            version = 1,  
-            error_correction = qrcode.constants.ERROR_CORRECT_L,  
-            box_size = 10,  
-            border = 4,  
-        )  
-
-    def generateQrCode(self, xendit_invoice_url):
-        qrcode_image = qrcode.make(xendit_invoice_url)
-        stream = io.BytesIO()
-        qrcode_image.save(stream)
-        return base64.b64encode(stream.getvalue()).decode("utf-8")
-
