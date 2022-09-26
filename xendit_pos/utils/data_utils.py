@@ -4,6 +4,9 @@ import base64
 from operator import or_
 import random
 import string
+import qrcode
+import qrcode.image.svg
+import io
 
 class DataUtils():
 
@@ -92,3 +95,18 @@ class DataUtils():
             'x-plugin-version': plugin_version,
             'Authorization': 'Basic ' + encodedSecretKey
         }
+
+    def initQrCode():
+        return qrcode.QRCode(  
+            version = 1,  
+            error_correction = qrcode.constants.ERROR_CORRECT_L,  
+            box_size = 10,  
+            border = 4,  
+        )  
+
+    def generateQrCode(self, xendit_invoice_url):
+        qrcode_image = qrcode.make(xendit_invoice_url)
+        stream = io.BytesIO()
+        qrcode_image.save(stream)
+        return base64.b64encode(stream.getvalue()).decode("utf-8")
+
