@@ -4,9 +4,6 @@ import base64
 from operator import or_
 import random
 import string
-import qrcode
-import qrcode.image.svg
-import io
 
 class DataUtils():
 
