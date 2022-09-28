@@ -9,7 +9,7 @@ import base64
 
 from odoo.http import request
 from odoo import models, fields
-from . import data_utils,  error_handler, encrypt
+from . import data_utils,  error_handler, encrypt, qrcode
 
 class XenditClient():
 
@@ -20,6 +20,7 @@ class XenditClient():
 
     dataUtils = data_utils.DataUtils()
     errorHandler = error_handler.ErrorHandler()
+    qrCode = qrcode.Qrcode()
 
     def get_xendit_secret_key(self, payment_method):
         if payment_method.xendit_encrypt_key is False:
@@ -71,6 +72,8 @@ class XenditClient():
                 res.status_code
             )
 
+        # generate qrcode
+        response['qrcode_image'] = self.qrCode.renderQrcode(response['invoice_url'])
         return response
 
     def get_invoice(self, payment_method, invoice_id):

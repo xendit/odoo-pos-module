@@ -33,9 +33,6 @@ class PosPaymentMethod(models.Model):
     xendit_invoice_id = ''
     xenditClient = xendit_client.XenditClient
 
-    def __init__(self) -> None:
-        super().__init__()
-
     @api.onchange('xendit_pos_secret_key')
     def _onchange_xendit_secret_key(self):
         if self.xendit_pos_secret_key:

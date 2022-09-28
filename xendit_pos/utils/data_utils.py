@@ -92,3 +92,4 @@ class DataUtils():
             'x-plugin-version': plugin_version,
             'Authorization': 'Basic ' + encodedSecretKey
         }
+
