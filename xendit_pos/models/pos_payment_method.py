@@ -28,7 +28,7 @@ class PosPaymentMethod(models.Model):
     xendit_pos_test_mode = fields.Boolean(help='Run transactions in the test environment.')
     xendit_pos_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Xendit.', copy=False, groups='base.group_erp_manager')
     xendit_pos_latest_diagnosis = fields.Char(help='Technical field used to determine if the terminal is still connected.', copy=False, groups='base.group_erp_manager')
-    xendit_encrypt_key = fields.Char(string="Xendit Encrypt Key", required=True, copy=False)
+    xendit_pos_encrypt_key = fields.Char(string="Xendit Encrypt Key", required=True, copy=False)
 
     xendit_invoice_id = ''
     xenditClient = xendit_client.XenditClient
@@ -38,15 +38,15 @@ class PosPaymentMethod(models.Model):
         if self.xendit_pos_secret_key:
 
             # Generate the encrypt key using to encrypt secret key
-            if self.xendit_encrypt_key is False or self.xendit_encrypt_key == '':
-                self.xendit_encrypt_key = encrypt.generateKey()
+            if self.xendit_pos_encrypt_key is False or self.xendit_pos_encrypt_key == '':
+                self.xendit_pos_encrypt_key = encrypt.generateKey()
 
             # Set terminal_identifier and encrypt secret key
             if self.xendit_pos_terminal_identifier is False or self.xendit_pos_terminal_identifier == '':
                 self.xendit_pos_terminal_identifier = encrypt.generateKey()
 
             # encrypt secret key
-            self.xendit_pos_secret_key = encrypt.encrypt(self.xendit_pos_secret_key, self.xendit_encrypt_key)
+            self.xendit_pos_secret_key = encrypt.encrypt(self.xendit_pos_secret_key, self.xendit_pos_encrypt_key)
         else:
             ValidationError('Invalid xendit_pos_secret_key')
 
