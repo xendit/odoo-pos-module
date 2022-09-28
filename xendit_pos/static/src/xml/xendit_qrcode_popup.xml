@@ -9,7 +9,9 @@
                <div class="body">
                     <t t-esc="props.body" />
                     <div><h4 id="xendit-payment-status"><t t-raw="props.xenditPaymentStatus" /></h4></div>
-                    <div id="qrcode-img"><t t-raw="props.qrCodeImage" /></div>
+                    <div id="qrcode-img">
+                        <canvas id="canvas-qrcode"></canvas>
+                    </div>
                     <div id="invoice-link"><t t-raw="props.invoiceLink" /></div>
                </div>
                <div class="footer">
