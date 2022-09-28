@@ -19,10 +19,10 @@ class Qrcode():
         qrcode = self.initQrCode()
         qrcode.add_data(xendit_invoice_url)
         qrcode.make(fit = True)
-        qrcode_image = qrcode.make_image(fill_color = "black", back_color = "transparent")
+        qrcode_image = qrcode.make_image(fill_color = 'black', back_color = 'transparent')
         stream = io.BytesIO()
         qrcode_image.save(stream)
-        return base64.b64encode(stream.getvalue()).decode("utf-8")
+        return base64.b64encode(stream.getvalue()).decode('utf-8')
 
     def renderQrcode(self, xendit_invoice_url, echo = False, width = 180, height= 180):
         qrcode_image = self.generateQrCode(xendit_invoice_url)
