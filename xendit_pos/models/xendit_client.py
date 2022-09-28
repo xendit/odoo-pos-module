@@ -14,7 +14,7 @@ from . import data_utils,  error_handler, encrypt, qrcode
 class XenditClient():
 
     plugin_name = 'ODOO_POS'
-    plugin_version = '1.0'
+    plugin_version = '1.0.1'
 
     tpi_server_url = "https://tpi.xendit.co"
 
