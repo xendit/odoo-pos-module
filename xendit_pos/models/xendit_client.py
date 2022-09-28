@@ -23,10 +23,10 @@ class XenditClient():
     qrCode = qrcode.Qrcode()
 
     def get_xendit_secret_key(self, payment_method):
-        if payment_method.xendit_encrypt_key is False:
+        if payment_method.xendit_pos_encrypt_key is False:
             return payment_method.xendit_pos_secret_key
 
-        return encrypt.decrypt(payment_method.xendit_pos_secret_key, payment_method.xendit_encrypt_key)
+        return encrypt.decrypt(payment_method.xendit_pos_secret_key, payment_method.xendit_pos_encrypt_key)
 
     def generate_header(self, payment_method):
         return self.dataUtils.generateHeader(
