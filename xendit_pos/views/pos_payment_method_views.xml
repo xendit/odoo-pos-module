@@ -10,7 +10,7 @@
                         attrs="{'invisible': [('use_payment_terminal', '!=', 'xendit_pos')], 'required': [('use_payment_terminal', '=', 'xendit_pos')]}"/>
                 <field name="xendit_pos_terminal_identifier" attrs="{'invisible': 1}"/>
                 <field name="xendit_pos_test_mode" attrs="{'invisible': 1}"/>
-                <field name="xendit_encrypt_key" attrs="{'invisible': 1}"/>
+                <field name="xendit_pos_encrypt_key" attrs="{'invisible': 1}"/>
           </xpath>
       </field>
     </record>
