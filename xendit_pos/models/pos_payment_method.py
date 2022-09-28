@@ -11,7 +11,9 @@ from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError
 
 from odoo.http import request
+from symbol import term
 from . import xendit_client
+from . import encrypt
 
 _logger = logging.getLogger(__name__)
 
@@ -26,9 +28,34 @@ class PosPaymentMethod(models.Model):
     xendit_pos_test_mode = fields.Boolean(help='Run transactions in the test environment.')
     xendit_pos_latest_response = fields.Char(help='Technical field used to buffer the latest asynchronous notification from Xendit.', copy=False, groups='base.group_erp_manager')
     xendit_pos_latest_diagnosis = fields.Char(help='Technical field used to determine if the terminal is still connected.', copy=False, groups='base.group_erp_manager')
-    
+    xendit_encrypt_key = fields.Char(string="Xendit Encrypt Key", required=True, copy=False)
+
     xendit_invoice_id = ''
     xenditClient = xendit_client.XenditClient
+
+    @api.onchange('xendit_pos_secret_key')
+    def _onchange_xendit_secret_key(self):
+        if self.xendit_pos_secret_key:
+
+            # Generate the encrypt key using to encrypt secret key
+            if self.xendit_encrypt_key is False or self.xendit_encrypt_key == '':
+                self.xendit_encrypt_key = encrypt.generateKey()
+
+            # Set terminal_identifier and encrypt secret key
+            if self.xendit_pos_terminal_identifier is False or self.xendit_pos_terminal_identifier == '':
+                self.xendit_pos_terminal_identifier = encrypt.generateKey()
+
+            # encrypt secret key
+            self.xendit_pos_secret_key = encrypt.encrypt(self.xendit_pos_secret_key, self.xendit_encrypt_key)
+        else:
+            ValidationError('Invalid xendit_pos_secret_key')
+
+    def get_current_xendit_payment_method(self, terminal_id):
+        return request.env['pos.payment.method'].sudo().search(
+            [
+                ('use_payment_terminal', '=', 'xendit_pos'),
+                ('xendit_pos_terminal_identifier', '=', terminal_id if self.xendit_pos_terminal_identifier is False else self.xendit_pos_terminal_identifier)
+            ], limit=1)
 
     @api.constrains('xendit_pos_terminal_identifier')
     def _check_xendit_pos_terminal_identifier(self):
@@ -57,12 +84,12 @@ class PosPaymentMethod(models.Model):
         # notify the user if the terminal is no longer reachable due
         # to connectivity issues.
 
-        payment_method = request.env['pos.payment.method'].sudo().search([('use_payment_terminal', '=', 'xendit_pos')], limit=1)
+        payment_method = self.get_current_xendit_payment_method(data['terminal_id'])
         payment_method.xendit_pos_latest_response = ''  # avoid handling old responses multiple times
 
-        self.xenditClient._set_odoo_company_id(self.xenditClient, self.env.company.id)
-        invoice = self.xenditClient._get_invoice(
+        invoice = self.xenditClient.get_invoice(
             self.xenditClient,
+            payment_method,
             data["xendit_invoice_id"]
         )
         return { 'response': invoice }
@@ -78,20 +105,20 @@ class PosPaymentMethod(models.Model):
         /xendit/notification which will need to write on
         pos.payment.method.
         '''
-        
-        self.xenditClient._set_odoo_company_id(self.xenditClient, self.env.company.id)
-        invoice = self.xenditClient._create_invoice(
+
+        invoice = self.xenditClient.create_invoice(
             self.xenditClient,
-            json.loads(json.dumps(data))           
+            self.get_current_xendit_payment_method(data['terminal_id']),
+            json.loads(json.dumps(data))
         )
         return invoice
 
     @api.model
-    def cancel_payment(self, xenditInvoiceId):
-        self.xenditClient._set_odoo_company_id(self.xenditClient, self.env.company.id)
-        res = self.xenditClient._cancel_invoice(
+    def cancel_payment(self, data):
+        res = self.xenditClient.cancel_invoice(
             self.xenditClient,
-            xenditInvoiceId
+            self.get_current_xendit_payment_method(data['terminal_id']),
+            data['invoice_id'],
         )
         return res
 

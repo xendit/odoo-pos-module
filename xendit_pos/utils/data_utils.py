@@ -2,6 +2,8 @@
 from ast import In, Or
 import base64
 from operator import or_
+import random
+import string
 
 class DataUtils():
 
@@ -78,7 +80,7 @@ class DataUtils():
 
         return customerObject
 
-    def generateHeader(self, secret_key):
+    def generateHeader(self, secret_key, plugin_name, plugin_version):
 
         encodedSecretKey = ''
         if not self.isEmptyString(secret_key):
@@ -86,7 +88,8 @@ class DataUtils():
 
         return {
             'content-type': 'application/json',
-            'x-plugin-name': 'ODOO_POS',
-            'x-plugin-version': '1.0',
+            'x-plugin-name': plugin_name,
+            'x-plugin-version': plugin_version,
             'Authorization': 'Basic ' + encodedSecretKey
         }
+
