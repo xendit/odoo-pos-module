@@ -6,6 +6,7 @@ from wsgiref import headers
 import json
 import requests
 import base64
+from datetime import datetime
 
 from odoo.http import request
 from odoo import models, fields
@@ -35,10 +36,15 @@ class XenditClient():
             self.plugin_version
         )
 
+    def generate_external_id(self, data):
+        order_id = data['name'].split(' ')[1]
+        timestamp = round(datetime.timestamp(datetime.now()) * 1000)
+        return self.plugin_name+ '_' + order_id + '_' + str(timestamp)
+
     def generate_payload(self, data):
         customerObject = self.dataUtils.generateInvoiceCustomer(data['client'])
         payload = {
-            'external_id': data['name'].split(' ')[1],
+            'external_id': self.generate_external_id(self, data),
             'amount': data['amount'],
             'currency': data['currency']['name'],
             'description': data['name'],

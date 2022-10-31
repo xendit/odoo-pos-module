@@ -11,7 +11,6 @@ from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError
 
 from odoo.http import request
-from symbol import term
 from . import xendit_client
 from . import encrypt
 
