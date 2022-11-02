@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
-from ast import In
-import secrets
-import this
-from wsgiref import headers
 import json
 import requests
-import base64
 from datetime import datetime
 
 from odoo.http import request
@@ -15,7 +10,7 @@ from . import data_utils,  error_handler, encrypt, qrcode
 class XenditClient():
 
     plugin_name = 'ODOO_POS'
-    plugin_version = '1.0.1'
+    plugin_version = '1.0.2'
 
     tpi_server_url = "https://tpi.xendit.co"
 
