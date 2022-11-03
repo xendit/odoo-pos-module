@@ -1,4 +1,5 @@
 xendit_pos/__pycache__
 xendit_pos/controllers/__pycache__
 xendit_pos/models/__pycache__
+xendit_pos/utils/__pycache__
 addons/*

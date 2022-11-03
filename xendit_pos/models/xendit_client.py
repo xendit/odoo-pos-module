@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
-from ast import In
-import secrets
-import this
-from wsgiref import headers
 import json
 import requests
-import base64
+from datetime import datetime
 
 from odoo.http import request
 from odoo import models, fields
@@ -14,7 +10,7 @@ from . import data_utils,  error_handler, encrypt, qrcode
 class XenditClient():
 
     plugin_name = 'ODOO_POS'
-    plugin_version = '1.0.1'
+    plugin_version = '1.0.2'
 
     tpi_server_url = "https://tpi.xendit.co"
 
@@ -35,10 +31,15 @@ class XenditClient():
             self.plugin_version
         )
 
+    def generate_external_id(self, data):
+        order_id = data['name'].split(' ')[1]
+        timestamp = round(datetime.timestamp(datetime.now()) * 1000)
+        return self.plugin_name+ '_' + order_id + '_' + str(timestamp)
+
     def generate_payload(self, data):
         customerObject = self.dataUtils.generateInvoiceCustomer(data['client'])
         payload = {
-            'external_id': data['name'].split(' ')[1],
+            'external_id': self.generate_external_id(self, data),
             'amount': data['amount'],
             'currency': data['currency']['name'],
             'description': data['name'],

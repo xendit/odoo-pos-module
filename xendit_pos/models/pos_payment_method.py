@@ -2,16 +2,11 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 import json
 import logging
-from pprint import pprint
-import random
-import requests
-import string
 
 from odoo import fields, models, api, _
 from odoo.exceptions import ValidationError
 
 from odoo.http import request
-from symbol import term
 from . import xendit_client
 from . import encrypt
 
