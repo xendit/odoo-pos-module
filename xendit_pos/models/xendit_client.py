@@ -13,7 +13,7 @@ class XenditClient():
     plugin_version = '1.0.2'
 
     tpi_server_url = "https://tpi.xendit.co"
-
+    xendit_secret_key = ''
     dataUtils = data_utils.DataUtils()
     errorHandler = error_handler.ErrorHandler()
     qrCode = qrcode.Qrcode()
@@ -25,8 +25,9 @@ class XenditClient():
         return encrypt.decrypt(payment_method.xendit_pos_secret_key, payment_method.xendit_pos_encrypt_key)
 
     def generate_header(self, payment_method):
+        self.xendit_secret_key = self.get_xendit_secret_key(self, payment_method)
         return self.dataUtils.generateHeader(
-            self.get_xendit_secret_key(self, payment_method),
+            self.xendit_secret_key,
             self.plugin_name,
             self.plugin_version
         )
@@ -61,6 +62,11 @@ class XenditClient():
         try:
             res = requests.post(endpoint, json=payload, headers=headers, timeout=10)
         except requests.exceptions.RequestException as err:
+            self.send_metric(
+                self,
+                headers,
+                self.generate_metric_payload(self, 'checkout'),
+            )
             return self.errorHandler.handleError('create_invoice', err)
 
         response = json.loads(res.text)
@@ -84,6 +90,11 @@ class XenditClient():
         try:
             res = requests.get(endpoint, headers=headers, timeout=10)
         except requests.exceptions.RequestException as err:
+            self.send_metric(
+                self,
+                headers,
+                self.generate_metric_payload(self, 'get_invoice'),
+            )
             return self.errorHandler.handleError('get_invoice', err)
 
         response = json.loads(res.text)
@@ -105,6 +116,11 @@ class XenditClient():
         try:
             res = requests.post(endpoint, headers=headers, timeout=10)
         except requests.exceptions.RequestException as err:
+            self.send_metric(
+                self,
+                headers,
+                self.generate_metric_payload(self, 'cancel_checkout'),
+            )
             return self.errorHandler.handleError('cancel_invoice', err)
 
         # If error
@@ -119,3 +135,19 @@ class XenditClient():
             return True
 
         return False
+
+    def generate_metric_payload(self, name):
+        return {
+            'name': self.plugin_name.lower() + '_' + name,
+            'additional_tags': {
+                'version': self.plugin_version,
+                'is_live': self.xendit_secret_key.index('development') == -1,
+            }
+        }
+
+    def send_metric(self, headers, payload):
+        try:
+            endpoint = self.tpi_server_url + '/log/metrics/count'
+            requests.post(endpoint, json=payload, headers=headers, timeout=10)
+        except requests.exceptions.RequestException as err:
+            return self.errorHandler.handleError('send_metric')
