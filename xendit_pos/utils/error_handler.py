@@ -6,7 +6,7 @@ class ErrorHandler():
 
     _logger = logging.getLogger(__name__)
 
-    def handleError(self, action, message, status_code = 500):
+    def handleError(self, action, message = None, status_code = 500):
 
         # Log the error message in odoo logging
         self.logError("{0} - status_code: {1} - message: {2}".format(action, status_code, message))
