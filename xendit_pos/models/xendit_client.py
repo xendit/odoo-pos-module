@@ -126,14 +126,20 @@ class XenditClient():
 
         return False
 
-    def generate_metric_payload(self, name, type='error'):
-        return {
-            'name': self.plugin_name.lower() + '_' + name,
-            'additional_tags': {
+    def generate_metric_payload(self, name, type='error', payment_method=None, payment_status=None):
+        additional_tags = {
                 'version': self.plugin_version,
                 'is_live': self.xendit_secret_key.index('development') == -1,
-                'type': type
+                'type': type,
+                'payment_status': payment_status
             }
+
+        if(payment_method is not None and payment_method):
+            additional_tags['payment_method'] = payment_method
+
+        return {
+            'name': self.plugin_name.lower() + '_' + name,
+            'additional_tags': additional_tags
         }
 
     def send_metric(self, headers, payload):
