@@ -10,7 +10,7 @@ from . import data_utils,  error_handler, encrypt, qrcode
 class XenditClient():
 
     plugin_name = 'ODOO_POS'
-    plugin_version = '1.0.2'
+    plugin_version = '1.0.3'
 
     tpi_server_url = "https://tpi.xendit.co"
     xendit_secret_key = ''
@@ -90,11 +90,6 @@ class XenditClient():
         try:
             res = requests.get(endpoint, headers=headers, timeout=10)
         except requests.exceptions.RequestException as err:
-            self.send_metric(
-                self,
-                headers,
-                self.generate_metric_payload(self, 'get_invoice'),
-            )
             return self.errorHandler.handleError('get_invoice', err)
 
         response = json.loads(res.text)
@@ -116,11 +111,6 @@ class XenditClient():
         try:
             res = requests.post(endpoint, headers=headers, timeout=10)
         except requests.exceptions.RequestException as err:
-            self.send_metric(
-                self,
-                headers,
-                self.generate_metric_payload(self, 'cancel_checkout'),
-            )
             return self.errorHandler.handleError('cancel_invoice', err)
 
         # If error
@@ -136,12 +126,13 @@ class XenditClient():
 
         return False
 
-    def generate_metric_payload(self, name):
+    def generate_metric_payload(self, name, type='error'):
         return {
             'name': self.plugin_name.lower() + '_' + name,
             'additional_tags': {
                 'version': self.plugin_version,
                 'is_live': self.xendit_secret_key.index('development') == -1,
+                'type': type
             }
         }
 
