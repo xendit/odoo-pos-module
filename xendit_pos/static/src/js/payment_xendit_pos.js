@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /* eslint-disable camelcase */
 odoo.define('xendit_pos.payment', function (require) {
   'use strict'
@@ -181,6 +182,7 @@ odoo.define('xendit_pos.payment', function (require) {
       if (invoice.status === 'PAID' || invoice.status === 'SETTLED') {
         $('#xendit-payment-status').text('Paid')
         $('#invoice-link > a').text('Paid')
+        this._metric_update_payment_status()
         resolve(true)
       } else if (invoice.status === 'EXPIRED') {
         $('#xendit-payment-status').text('Expired')
@@ -189,9 +191,24 @@ odoo.define('xendit_pos.payment', function (require) {
         const paymentLine = this.get_selected_payment()
         if (paymentLine) {
           paymentLine.set_payment_status(paymentStatus.RETRY)
+          this._metric_update_payment_status()
         }
         reject()
       }
+    },
+
+    _metric_update_payment_status: function () {
+      const paymentLine = this.get_selected_payment()
+      // We metric the transaction
+      const data = { terminal_id: paymentLine.payment_method.xendit_pos_terminal_identifier }
+      rpc.query({
+        model: 'pos.payment.method',
+        method: 'metric_update_order_status',
+        args: [data]
+      }, {
+        timeout: 10000,
+        shadow: true
+      }).catch()
     },
 
     _generate_invoice_link: function (invoice_url) {

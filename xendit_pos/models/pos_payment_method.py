@@ -123,3 +123,13 @@ class PosPaymentMethod(models.Model):
         if self.use_payment_terminal != 'xendit_pos':
             self.xendit_pos_secret_key = False
             self.xendit_pos_terminal_identifier = False
+
+    @api.model
+    def metric_update_order_status(self, data):
+        payment_method = self.get_current_xendit_payment_method(data['terminal_id'])
+        res = self.xenditClient.send_metric(
+            self.xenditClient,
+            self.xenditClient.generate_header(self.xenditClient, payment_method),
+            self.xenditClient.generate_metric_payload(self.xenditClient, 'update_order_status', 'success')
+        )
+        return res
