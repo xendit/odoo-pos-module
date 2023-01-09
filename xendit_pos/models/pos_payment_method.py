@@ -127,9 +127,23 @@ class PosPaymentMethod(models.Model):
     @api.model
     def metric_update_order_status(self, data):
         payment_method = self.get_current_xendit_payment_method(data['terminal_id'])
+        xendit_payment_method = None
+        xendit_payment_status = None
+        if('payment_channel' in data['xendit_invoice']):
+            xendit_payment_method = data['xendit_invoice']['payment_channel']
+
+        if('status' in data['xendit_invoice']):
+            xendit_payment_status = data['xendit_invoice']['status']
+
         res = self.xenditClient.send_metric(
             self.xenditClient,
             self.xenditClient.generate_header(self.xenditClient, payment_method),
-            self.xenditClient.generate_metric_payload(self.xenditClient, 'update_order_status', 'success')
+            self.xenditClient.generate_metric_payload(
+                self.xenditClient,
+                'update_order_status',
+                'success',
+                xendit_payment_method,
+                xendit_payment_status
+            )
         )
         return res
