@@ -19,7 +19,12 @@ info:
       name: xendit/store-channels
     - type: SLACK
       channel: store-channels-cortex
+    - email: adhiarta@xendit.co
+      type: EMAIL
   x-cortex-dependency: []
   x-cortex-service-groups:
     - node
     - module
+    - adhiarta@xendit.co
+    - P2
+    - TPI
