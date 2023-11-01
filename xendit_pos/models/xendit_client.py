@@ -45,7 +45,7 @@ class XenditClient():
         payload = {
             'external_id': self.generate_external_id(self, data),
             'amount': data['amount'],
-            'currency': 'IDR',
+            'currency': data['currency']['name'],
             'description': data['name'],
             'items': self.dataUtils.generateInvoiceItems(data),
             'customer': customerObject,
