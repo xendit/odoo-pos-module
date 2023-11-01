@@ -49,7 +49,7 @@ class PosPaymentMethod(models.Model):
         return request.env['pos.payment.method'].sudo().search(
             [
                 ('use_payment_terminal', '=', 'xendit_pos'),
-                ('xendit_pos_terminal_identifier', '=', terminal_id if self.xendit_pos_terminal_identifier is False else self.xendit_pos_terminal_identifier)
+                ('id', '=', terminal_id if self.xendit_pos_terminal_identifier is False else self.xendit_pos_terminal_identifier)
             ], limit=1)
 
     @api.constrains('xendit_pos_terminal_identifier')

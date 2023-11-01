@@ -38,11 +38,14 @@ class XenditClient():
         return self.plugin_name+ '_' + order_id + '_' + str(timestamp)
 
     def generate_payload(self, data):
-        customerObject = self.dataUtils.generateInvoiceCustomer(data['client'])
+        customerObject = {}
+        if 'client' in data:
+            customerObject = self.dataUtils.generateInvoiceCustomer(data['client'])
+
         payload = {
             'external_id': self.generate_external_id(self, data),
             'amount': data['amount'],
-            'currency': data['currency']['name'],
+            'currency': 'IDR',
             'description': data['name'],
             'items': self.dataUtils.generateInvoiceItems(data),
             'customer': customerObject,
