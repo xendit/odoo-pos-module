@@ -27,13 +27,13 @@ odoo.define('xendit_pos.payment', function (require) {
     },
 
     get_selected_payment: function (cid) {
-      const paymentLine = this.pos.get_order().paymentlines.find(paymentLine => paymentLine.cid === cid);
-      return paymentLine;
+      const paymentLine = this.pos.get_order().paymentlines.find(paymentLine => paymentLine.cid === cid)
+      return paymentLine
     },
 
-    pending_xendit_line() {
+    pending_xendit_line () {
       return this.pos.get_order().paymentlines.find(
-        paymentLine => paymentLine.payment_method.use_payment_terminal === 'xendit_pos' && (!paymentLine.is_done()));
+        paymentLine => paymentLine.payment_method.use_payment_terminal === 'xendit_pos' && (!paymentLine.is_done()))
     },
 
     send_payment_cancel: function (order, cid) {
@@ -141,7 +141,7 @@ odoo.define('xendit_pos.payment', function (require) {
       }
 
       const order = this.pos.get_order()
-      const paymentLine = this.pending_xendit_line();
+      const paymentLine = this.pending_xendit_line()
 
       // If the payment line dont have xendit invoice then stop polling retry.
       if (!paymentLine || paymentLine.getXenditInvoiceId() == null) {

@@ -4,10 +4,6 @@ odoo.define('xendit_pos.XenditQRCodePopup', function (require) {
   const Registries = require('point_of_sale.Registries')
 
   class XenditQRCodePopup extends AbstractAwaitablePopup {
-    constructor () {
-      super(...arguments)
-    }
-
     get currentOrder () {
       return this.env.pos.get_order()
     }
