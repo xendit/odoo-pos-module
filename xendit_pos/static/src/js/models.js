@@ -1,38 +1,36 @@
 odoo.define('xendit_pos.models', function (require) {
-    var models = require('point_of_sale.models');
-    var PaymentXendit = require('xendit_pos.payment');
-    
-    models.register_payment_method('xendit_pos', PaymentXendit);
-    models.load_fields(
-        'pos.payment.method', 
-        [
-            'xendit_pos_terminal_identifier',
-            'xendit_pos_test_mode', 
-            'xendit_pos_secret_key'
-        ]
-    );
+  const { register_payment_method, Payment } = require('point_of_sale.models')
+  const PaymentXendit = require('xendit_pos.payment')
+  const Registries = require('point_of_sale.Registries')
 
-    const superPaymentline = models.Paymentline.prototype;
-    models.Paymentline = models.Paymentline.extend({
-        initialize: function(attr, options) {
-            superPaymentline.initialize.call(this,attr,options);
-            this.xenditInvoiceId = this.xenditInvoiceId  || null;
-        },
-        export_as_JSON: function(){
-            const json = superPaymentline.export_as_JSON.call(this);
-            json.xendit_invoice_id = this.xenditInvoiceId;
-            return json;
-        },
-        init_from_JSON: function(json){
-            superPaymentline.init_from_JSON.apply(this,arguments);
-            this.xenditInvoiceId = json.xendit_invoice_id;
-        },
-        setXenditInvoiceId: function(id) {
-            this.xenditInvoiceId = id;
-        },
-        getXenditInvoiceId: function() {
-            return this.xenditInvoiceId;
-        }
-    });
-});
-    
+  register_payment_method('xendit_pos', PaymentXendit)
+
+  const PosXenditPayment = (Payment) => class PosXenditPayment extends Payment {
+    constructor (obj, options) {
+      super(...arguments)
+      this.xenditInvoiceId = this.xenditInvoiceId || null
+    }
+
+    // @override
+    export_as_JSON () {
+      const json = super.export_as_JSON(...arguments)
+      json.xendit_invoice_id = this.xenditInvoiceId
+      return json
+    }
+
+    // @override
+    init_from_JSON (json) {
+      super.init_from_JSON(...arguments)
+      this.xenditInvoiceId = json.xendit_invoice_id
+    }
+
+    setXenditInvoiceId (id) {
+      this.xenditInvoiceId = id
+    }
+
+    getXenditInvoiceId () {
+      return this.xenditInvoiceId
+    }
+  }
+  Registries.Model.extend(Payment, PosXenditPayment)
+})

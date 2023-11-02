@@ -26,25 +26,15 @@
     'data': [
         'views/pos_payment_method_views.xml'
     ],
-    # qweb For Odoo 14.0
-    'qweb': [
-        'static/src/xml/xendit_qrcode_popup.xml'
-    ],
     'images': [
         'static/description/cover.png'
     ],
     'application': True,
     'installable': True,
     'assets': {
-        'web.assets_backend': [
-            'xendit_pos/static/src/js/PaymentScreen.js',
-            'xendit_pos/static/src/js/payment_xendit_pos.js',
-            'xendit_pos/static/src/js/models.js',
-            'xendit_pos/static/src/js/xendit_qrcode_popup.js'
-        ],
-        # qweb For Odoo 15.0
-        'web.assets_qweb': [
-            'xendit_pos/static/src/xml/xendit_qrcode_popup.xml'
+        # For Odoo 16.0
+        'point_of_sale.assets': [
+            'xendit_pos/static/**/*',
         ],
     }
 }

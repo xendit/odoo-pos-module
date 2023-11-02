@@ -19,28 +19,30 @@ odoo.define('xendit_pos.payment', function (require) {
   const _t = core._t
 
   const PaymentXenditPOS = PaymentInterface.extend({
-    send_payment_request: function () {
+    send_payment_request: function (cid) {
       this._super.apply(this, arguments)
       this._reset_state()
 
-      return this._xendit_pay()
+      return this._xendit_pay(cid)
     },
 
-    get_selected_payment: function () {
-      const paymentLine = this.pos.get_order().selected_paymentline
-      if (paymentLine && paymentLine.payment_method.use_payment_terminal === 'xendit_pos') {
-        return paymentLine
-      }
-      return false
+    get_selected_payment: function (cid) {
+      const paymentLine = this.pos.get_order().paymentlines.find(paymentLine => paymentLine.cid === cid)
+      return paymentLine
     },
 
-    send_payment_cancel: function () {
+    pending_xendit_line () {
+      return this.pos.get_order().paymentlines.find(
+        paymentLine => paymentLine.payment_method.use_payment_terminal === 'xendit_pos' && (!paymentLine.is_done()))
+    },
+
+    send_payment_cancel: function (order, cid) {
       this._super.apply(this, arguments)
       // set only if we are polling
       this.was_cancelled = !!this.polling
 
       // Cancel order on Xendit
-      const paymentLine = this.get_selected_payment()
+      const paymentLine = this.get_selected_payment(cid)
       return this._xendit_cancel(paymentLine)
     },
 
@@ -62,7 +64,7 @@ odoo.define('xendit_pos.payment', function (require) {
       }
 
       const xenditInvoiceId = paymentLine.getXenditInvoiceId()
-      const data = { invoice_id: xenditInvoiceId, terminal_id: paymentLine.payment_method.xendit_pos_terminal_identifier }
+      const data = { invoice_id: xenditInvoiceId, terminal_id: paymentLine.payment_method.id }
       rpc.query({
         model: 'pos.payment.method',
         method: 'cancel_payment',
@@ -84,7 +86,7 @@ odoo.define('xendit_pos.payment', function (require) {
 
     _handle_odoo_connection_failure: function (data) {
       // handle timeout
-      const paymentLine = this.get_selected_payment()
+      const paymentLine = this.pending_xendit_line()
       if (paymentLine) {
         paymentLine.set_payment_status(paymentStatus.RETRY)
       }
@@ -93,11 +95,11 @@ odoo.define('xendit_pos.payment', function (require) {
       return Promise.reject(data) // prevent subsequent onFullFilled's from being called
     },
 
-    _xendit_pay: function () {
+    _xendit_pay: function (cid) {
       const self = this
 
       const order = this.pos.get_order()
-      const paymentLine = this.get_selected_payment()
+      const paymentLine = this.get_selected_payment(cid)
       if (paymentLine && paymentLine.amount <= 0) {
         this._show_error(
           _t('Cannot process transaction with zero or negative amount.')
@@ -107,7 +109,7 @@ odoo.define('xendit_pos.payment', function (require) {
 
       const receipt_data = order.export_for_printing()
       receipt_data.amount = paymentLine.amount
-      receipt_data.terminal_id = paymentLine.payment_method.xendit_pos_terminal_identifier
+      receipt_data.terminal_id = paymentLine.payment_method.id
 
       return this._call_xendit(receipt_data).then(function (data) {
         return self._xendit_handle_response(data)
@@ -139,7 +141,7 @@ odoo.define('xendit_pos.payment', function (require) {
       }
 
       const order = this.pos.get_order()
-      const paymentLine = this.get_selected_payment()
+      const paymentLine = this.pending_xendit_line()
 
       // If the payment line dont have xendit invoice then stop polling retry.
       if (!paymentLine || paymentLine.getXenditInvoiceId() == null) {
@@ -150,7 +152,7 @@ odoo.define('xendit_pos.payment', function (require) {
       const data = {
         sale_id: this._xendit_get_sale_id(),
         transaction_id: order.uid,
-        terminal_id: this.payment_method.xendit_pos_terminal_identifier,
+        terminal_id: this.payment_method.id,
         requested_amount: paymentLine.amount,
         xendit_invoice_id: paymentLine.getXenditInvoiceId()
       }
@@ -170,7 +172,7 @@ odoo.define('xendit_pos.payment', function (require) {
         const invoice = result.response
 
         if (invoice.id === paymentLine.getXenditInvoiceId()) {
-          self._update_payment_status(invoice, resolve, reject)
+          self._update_payment_status(invoice, paymentLine, resolve, reject)
         } else {
           paymentLine.set_payment_status(paymentStatus.RETRY)
           reject()
@@ -178,29 +180,27 @@ odoo.define('xendit_pos.payment', function (require) {
       })
     },
 
-    _update_payment_status: function (invoice, resolve, reject) {
+    _update_payment_status: function (invoice, paymentLine, resolve, reject) {
       if (invoice.status === 'PAID' || invoice.status === 'SETTLED') {
         $('#xendit-payment-status').text('Paid')
         $('#invoice-link > a').text('Paid')
-        this._metric_update_payment_status(invoice)
+        this._metric_update_payment_status(invoice, paymentLine)
         resolve(true)
       } else if (invoice.status === 'EXPIRED') {
         $('#xendit-payment-status').text('Expired')
         $('#invoice-link > a').text('Expired')
 
-        const paymentLine = this.get_selected_payment()
         if (paymentLine) {
           paymentLine.set_payment_status(paymentStatus.RETRY)
         }
-        this._metric_update_payment_status(invoice)
+        this._metric_update_payment_status(invoice, paymentLine)
         reject()
       }
     },
 
-    _metric_update_payment_status: function (invoice) {
-      const paymentLine = this.get_selected_payment()
+    _metric_update_payment_status: function (invoice, paymentLine) {
       // We metric the transaction
-      const data = { xendit_invoice: invoice, terminal_id: paymentLine.payment_method.xendit_pos_terminal_identifier }
+      const data = { xendit_invoice: invoice, terminal_id: paymentLine.payment_method.id }
       rpc.query({
         model: 'pos.payment.method',
         method: 'metric_update_order_status',
@@ -217,7 +217,7 @@ odoo.define('xendit_pos.payment', function (require) {
 
     _xendit_handle_response: function (response) {
       const self = this
-      const paymentLine = this.get_selected_payment()
+      const paymentLine = this.pending_xendit_line()
 
       if (response.error) {
         let errorMessage = _t(response.error.message)
@@ -235,7 +235,7 @@ odoo.define('xendit_pos.payment', function (require) {
       } else if (response.id) {
         Gui.showPopup('XenditQRCodePopup', {
           title: _t('Scan to pay'),
-          invoiceLink: self._generate_invoice_link(response.invoice_url)
+          invoiceLink: response.invoice_url
         })
 
         // Check to show the canvas

@@ -10,7 +10,7 @@ from . import data_utils,  error_handler, encrypt, qrcode
 class XenditClient():
 
     plugin_name = 'ODOO_POS'
-    plugin_version = '1.0.3'
+    plugin_version = '2.0.0'
 
     tpi_server_url = "https://tpi.xendit.co"
     xendit_secret_key = ''
@@ -38,7 +38,10 @@ class XenditClient():
         return self.plugin_name+ '_' + order_id + '_' + str(timestamp)
 
     def generate_payload(self, data):
-        customerObject = self.dataUtils.generateInvoiceCustomer(data['client'])
+        customerObject = {}
+        if 'partner' in data:
+            customerObject = self.dataUtils.generateInvoiceCustomer(data['partner'])
+
         payload = {
             'external_id': self.generate_external_id(self, data),
             'amount': data['amount'],
