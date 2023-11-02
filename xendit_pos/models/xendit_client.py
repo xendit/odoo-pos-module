@@ -39,8 +39,8 @@ class XenditClient():
 
     def generate_payload(self, data):
         customerObject = {}
-        if 'client' in data:
-            customerObject = self.dataUtils.generateInvoiceCustomer(data['client'])
+        if 'partner' in data:
+            customerObject = self.dataUtils.generateInvoiceCustomer(data['partner'])
 
         payload = {
             'external_id': self.generate_external_id(self, data),
