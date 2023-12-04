@@ -10,9 +10,9 @@ from . import data_utils,  error_handler, encrypt, qrcode
 class XenditClient():
 
     plugin_name = 'ODOO_POS'
-    plugin_version = '1.0.3'
+    plugin_version = '2.0.0'
 
-    tpi_server_url = "https://tpi.xendit.co"
+    tpi_server_url = "https://tpi-gateway.xendit.co"
     xendit_secret_key = ''
     dataUtils = data_utils.DataUtils()
     errorHandler = error_handler.ErrorHandler()
@@ -55,7 +55,7 @@ class XenditClient():
         return payload
 
     def create_invoice(self, payment_method, data):
-        endpoint = self.tpi_server_url + '/payment/xendit/invoice'
+        endpoint = self.tpi_server_url + '/tpi/payment/xendit/invoice'
         headers = self.generate_header(self, payment_method)
         payload = self.generate_payload(self, data)
 
@@ -84,7 +84,7 @@ class XenditClient():
         return response
 
     def get_invoice(self, payment_method, invoice_id):
-        endpoint = self.tpi_server_url + '/payment/xendit/invoice/' + invoice_id
+        endpoint = self.tpi_server_url + '/tpi/payment/xendit/invoice/' + invoice_id
         headers = self.generate_header(self, payment_method)
 
         try:
@@ -105,7 +105,7 @@ class XenditClient():
         return response
 
     def cancel_invoice(self, payment_method, invoice_id):
-        endpoint = self.tpi_server_url + '/payment/xendit/invoice/' + invoice_id + '/expire'
+        endpoint = self.tpi_server_url + '/tpi/payment/xendit/invoice/' + invoice_id + '/expire'
         headers = self.generate_header(self, payment_method)
 
         try:
@@ -144,7 +144,7 @@ class XenditClient():
 
     def send_metric(self, headers, payload):
         try:
-            endpoint = self.tpi_server_url + '/log/metrics/count'
+            endpoint = self.tpi_server_url + '/tpi/log/metrics/count'
             requests.post(endpoint, json=payload, headers=headers, timeout=10)
         except requests.exceptions.RequestException as err:
             return self.errorHandler.handleError('send_metric')
